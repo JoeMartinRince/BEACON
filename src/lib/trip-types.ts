@@ -8,7 +8,7 @@ export type EventSourceType = "SYNTHETIC" | "ML" | "LIVE" | "DEMO" | "MANUAL";
 export interface TripGPSPoint {
   lat: number;
   lng: number;
-  speed_kmh: number;
+  speed_kmh: number | null;
   accuracy_m: number;
   timestamp: number;
   location_name?: string | undefined;
@@ -27,6 +27,12 @@ export interface TripGPSPoint {
   sensor_type?: "GPS_ONLY" | "GPS_AND_MOTION" | undefined;
   /** Data provenance */
   source?: EventSourceType | undefined;
+  /** Provenance of the reported speed */
+  speed_source?: "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
+  /** Raw coords.speed converted to km/h if available */
+  raw_coords_speed_kmh?: number | null | undefined;
+  /** Calculated fallback speed from consecutive fixes (km/h) */
+  fallback_speed_kmh?: number | null | undefined;
 }
 
 /**
@@ -127,3 +133,5 @@ export interface LiveTripMetrics {
   avg_speed_kmh: number;
   observation_count: number;
 }
+
+export type { GpsSpeedDiagnostics } from "./gps-speed-calculator";

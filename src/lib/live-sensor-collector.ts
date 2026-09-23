@@ -19,6 +19,10 @@
 import { calculateDistanceKm } from "./trip-geocoder";
 import { BATCH_FLUSH_INTERVAL_MS, MAX_OFFLINE_BUFFER_SIZE } from "./trip-state-machine";
 import type { TripGPSPoint } from "./trip-types";
+import {
+  GpsSpeedCalculator,
+  type GpsSpeedDiagnostics,
+} from "./gps-speed-calculator";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sensor availability types
@@ -87,6 +91,8 @@ export interface LiveSensorCollectorCallbacks {
   onStatusChange: (status: SensorAvailability) => void;
   /** Called when the batch queue is flushed (online) or when buffer is full (offline fallback) */
   onBatchFlush: (observations: BatchObservation[]) => void;
+  /** Optional diagnostics callback for dev mode inspection */
+  onDiagnostics?: (diagnostics: GpsSpeedDiagnostics) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -112,6 +118,9 @@ export class LiveSensorCollector {
   /** Last received motion reading — merged into the next GPS point */
   private lastMotion: MotionReading | null = null;
 
+  /** High-reliability GPS speed calculator with consecutive position fallback */
+  private speedCalculator = new GpsSpeedCalculator();
+
   constructor(callbacks: LiveSensorCollectorCallbacks, segments: SegmentRef[] = []) {
     this.callbacks = callbacks;
     this.segments = segments;
@@ -123,6 +132,7 @@ export class LiveSensorCollector {
   start(): void {
     if (typeof window === "undefined") return;
 
+    this.speedCalculator.reset();
     this.#watchOnlineStatus();
     this.#startGeolocation();
     this.#initMotionSensors();
@@ -147,6 +157,8 @@ export class LiveSensorCollector {
       window.removeEventListener("devicemotion", this.#handleMotion as EventListener);
     }
 
+    this.speedCalculator.reset();
+
     // Flush remaining buffer on stop
     this.#flushBuffer();
   }
@@ -164,6 +176,11 @@ export class LiveSensorCollector {
   /** Returns current buffered observation count */
   getBufferSize(): number {
     return this.buffer.length;
+  }
+
+  /** Returns latest GPS speed diagnostics for dev mode */
+  getDiagnostics(): GpsSpeedDiagnostics {
+    return this.speedCalculator.getDiagnostics(this.status.location === "CONNECTED");
   }
 
   /**
@@ -250,15 +267,25 @@ export class LiveSensorCollector {
   }
 
   #handleGpsPosition(pos: GeolocationPosition): void {
-    const speedKmh =
-      pos.coords.speed !== null && pos.coords.speed >= 0 ? pos.coords.speed * 3.6 : 0;
+    const speedResult = this.speedCalculator.calculate({
+      coords: {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy,
+        speed: pos.coords.speed,
+      },
+      timestamp: pos.timestamp,
+    });
 
     const point: TripGPSPoint = {
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
-      speed_kmh: Number(speedKmh.toFixed(1)),
+      speed_kmh: speedResult.speedKmh,
       accuracy_m: pos.coords.accuracy,
       timestamp: pos.timestamp,
+      speed_source: speedResult.source,
+      raw_coords_speed_kmh: speedResult.rawCoordsSpeedKmh,
+      fallback_speed_kmh: speedResult.fallbackSpeedKmh,
       // Motion fields merged from latest DeviceMotion reading
       ...(this.lastMotion
         ? {
@@ -290,6 +317,10 @@ export class LiveSensorCollector {
       queued_at: Date.now(),
     });
 
+    // Provide dev-mode diagnostics
+    const diagnostics = this.speedCalculator.getDiagnostics(true);
+    this.callbacks.onDiagnostics?.(diagnostics);
+
     // Notify caller
     this.callbacks.onGpsPoint(point, matched_segment_id);
   }
@@ -300,6 +331,8 @@ export class LiveSensorCollector {
     } else {
       this.#updateStatus({ location: "UNAVAILABLE" });
     }
+    const diagnostics = this.speedCalculator.getDiagnostics(false);
+    this.callbacks.onDiagnostics?.(diagnostics);
   }
 
   #handleMotion = (evt: DeviceMotionEvent): void => {

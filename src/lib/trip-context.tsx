@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   DEFAULT_TRIP_SETTINGS,
+  type GpsSpeedDiagnostics,
   type SensorAvailability,
   type Trip,
   type TripAffectedSegment,
@@ -45,7 +46,9 @@ interface TripContextType {
   isSimulating: boolean;
   isPaused: boolean;
   isWeakGps: boolean;
-  gpsSpeedKmh: number;
+  gpsSpeedKmh: number | null;
+  /** Live GPS and speed diagnostics for dev mode inspection */
+  gpsDiagnostics: GpsSpeedDiagnostics | null;
   /** Live sensor availability (location, motion, online status) */
   sensorStatus: SensorAvailability;
   /** Number of observations queued in the offline buffer */
@@ -207,7 +210,8 @@ export function TripProvider({ children }: { children: ReactNode }) {
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
 
   const [inspectedTrip, setInspectedTrip] = useState<Trip | null>(null);
-  const [gpsSpeedKmh, setGpsSpeedKmh] = useState(0);
+  const [gpsSpeedKmh, setGpsSpeedKmh] = useState<number | null>(null);
+  const [gpsDiagnostics, setGpsDiagnostics] = useState<GpsSpeedDiagnostics | null>(null);
   const [isWeakGps, setIsWeakGps] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -362,8 +366,8 @@ export function TripProvider({ children }: { children: ReactNode }) {
         event_count: 0,
         segment_count: 1,
         observations_count: 2,
-        max_speed_kmh: point.speed_kmh,
-        avg_speed_kmh: point.speed_kmh,
+        max_speed_kmh: point.speed_kmh ?? 0,
+        avg_speed_kmh: point.speed_kmh ?? 0,
         status: "TRIP_ACTIVE",
       };
       setCurrentTrip(newTrip);
@@ -697,6 +701,7 @@ export function TripProvider({ children }: { children: ReactNode }) {
     setIsSimulating(false);
     setIsPaused(false);
     simulationStepRef.current = 0;
+    setGpsSpeedKmh(null);
   };
 
   const resetSimulation = () => {
@@ -706,7 +711,8 @@ export function TripProvider({ children }: { children: ReactNode }) {
     simulationStepRef.current = 0;
     setCurrentTrip(null);
     setState("IDLE");
-    setGpsSpeedKmh(0);
+    setGpsSpeedKmh(null);
+    setGpsDiagnostics(null);
   };
 
   // ── Live Sensor Collector: initialise once on browser mount ───────────────
@@ -725,7 +731,10 @@ export function TripProvider({ children }: { children: ReactNode }) {
               : 0;
             const updatedDist = Number((prev.distance_km + incrementalKm).toFixed(3));
             const updatedPoints = [...prev.gps_points, point];
-            const updatedMaxSpeed = Math.max(prev.max_speed_kmh ?? 0, point.speed_kmh);
+            const updatedMaxSpeed =
+              point.speed_kmh !== null
+                ? Math.max(prev.max_speed_kmh ?? 0, point.speed_kmh)
+                : (prev.max_speed_kmh ?? 0);
             const matchedEvents = Math.min(rawEvents.length, Math.floor(updatedDist * 0.9));
             const matchedSegments = Math.min(summaries.length, Math.floor(updatedDist * 4.5));
             return {
@@ -757,6 +766,9 @@ export function TripProvider({ children }: { children: ReactNode }) {
         onBatchFlush: (observations: BatchObservation[]) => {
           setQueuedBufferCount(0);
           void observations;
+        },
+        onDiagnostics: (diag) => {
+          setGpsDiagnostics(diag);
         },
       },
       [],
@@ -802,6 +814,7 @@ export function TripProvider({ children }: { children: ReactNode }) {
       isPaused,
       isWeakGps,
       gpsSpeedKmh,
+      gpsDiagnostics,
       sensorStatus,
       queuedBufferCount,
       startManualTrip,
@@ -827,6 +840,7 @@ export function TripProvider({ children }: { children: ReactNode }) {
       isPaused,
       isWeakGps,
       gpsSpeedKmh,
+      gpsDiagnostics,
       sensorStatus,
       queuedBufferCount,
       inspectedTrip,

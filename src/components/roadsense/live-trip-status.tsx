@@ -84,6 +84,7 @@ export function LiveTripStatus() {
     currentTrip,
     isWeakGps,
     gpsSpeedKmh,
+    gpsDiagnostics,
     simulateTrip,
     isSimulating,
     isPaused,
@@ -161,14 +162,16 @@ export function LiveTripStatus() {
             {state === "IDLE" && (
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <span className="w-2 h-2 rounded-full bg-muted-foreground/60 animate-pulse" />
-                Waiting for movement
+                {gpsSpeedKmh !== null && gpsSpeedKmh > 0
+                  ? `Waiting for movement (${gpsSpeedKmh} km/h)`
+                  : "Waiting for movement"}
               </span>
             )}
 
             {state === "MOVEMENT_DETECTED" && (
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-500">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
-                Detecting trip... ({gpsSpeedKmh} km/h)
+                Detecting trip... {gpsSpeedKmh !== null ? `(${gpsSpeedKmh} km/h)` : ""}
               </span>
             )}
 
@@ -372,7 +375,7 @@ export function LiveTripStatus() {
                   </p>
                 </div>
                 <span className="font-extrabold text-foreground text-sm shrink-0 ml-2">
-                  {gpsSpeedKmh} km/h
+                  {gpsSpeedKmh !== null ? `${gpsSpeedKmh} km/h` : "-- km/h"}
                 </span>
               </div>
               {isSimulating && (
@@ -396,7 +399,10 @@ export function LiveTripStatus() {
                   BEACON IS COLLECTING
                 </span>
                 <span className="text-muted-foreground text-[11px]">
-                  Speed: <b className="text-foreground font-extrabold">{gpsSpeedKmh} km/h</b>
+                  Speed:{" "}
+                  <b className="text-foreground font-extrabold">
+                    {gpsSpeedKmh !== null ? `${gpsSpeedKmh} km/h` : "-- km/h"}
+                  </b>
                 </span>
               </div>
 
@@ -658,6 +664,62 @@ export function LiveTripStatus() {
                 >
                   Dismiss
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Dev-Mode Diagnostics Panel (Requirement 9: dev mode only, hidden in production build) */}
+          {import.meta.env.DEV && gpsDiagnostics && (
+            <div className="mt-3 p-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-[11px] font-mono space-y-1.5">
+              <div className="flex items-center justify-between font-sans text-xs font-bold text-primary">
+                <span className="flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5" />
+                  GPS & Speed Diagnostics (Dev Only)
+                </span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-primary/15 text-primary">
+                  {gpsDiagnostics.speedSource}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1 pt-1 text-muted-foreground">
+                <div>
+                  GPS Available:{" "}
+                  <b className="text-foreground">{gpsDiagnostics.gpsAvailable ? "YES" : "NO"}</b>
+                </div>
+                <div>
+                  coords.speed:{" "}
+                  <b className="text-foreground">
+                    {gpsDiagnostics.coordsSpeedRaw !== null
+                      ? `${gpsDiagnostics.coordsSpeedRaw} m/s (${gpsDiagnostics.coordsSpeedKmh} km/h)`
+                      : "null"}
+                  </b>
+                </div>
+                <div>
+                  Calculated Fallback:{" "}
+                  <b className="text-foreground">
+                    {gpsDiagnostics.calculatedFallbackSpeedKmh !== null
+                      ? `${gpsDiagnostics.calculatedFallbackSpeedKmh} km/h`
+                      : "N/A"}
+                  </b>
+                </div>
+                <div>
+                  Reported Speed:{" "}
+                  <b className="text-foreground">
+                    {gpsDiagnostics.currentSpeedKmh !== null
+                      ? `${gpsDiagnostics.currentSpeedKmh} km/h`
+                      : "unavailable"}
+                  </b>
+                </div>
+                <div>
+                  GPS Accuracy:{" "}
+                  <b className="text-foreground">±{gpsDiagnostics.gpsAccuracyMeters} m</b>
+                </div>
+                <div>
+                  GPS Samples:{" "}
+                  <b className="text-foreground">{gpsDiagnostics.samplesReceivedCount}</b>
+                </div>
+                <div className="col-span-2 sm:col-span-3 text-[10px] text-muted-foreground/80">
+                  Fix Time: {new Date(gpsDiagnostics.timestamp).toLocaleTimeString()} ({gpsDiagnostics.lastCalculationStatus})
+                </div>
               </div>
             </div>
           )}

@@ -81,7 +81,7 @@ export function transitionTripState(
 ): TripStateTransition {
   // ── 1. IDLE ──────────────────────────────────────────────────────────────
   if (currentState === "IDLE") {
-    if (point.speed_kmh >= MOVEMENT_START_SPEED_KMH) {
+    if (point.speed_kmh !== null && point.speed_kmh >= MOVEMENT_START_SPEED_KMH) {
       refs.movementStartTime = nowMs;
       refs.candidateStartPoint = point;
       return {
@@ -95,7 +95,7 @@ export function transitionTripState(
 
   // ── 2. MOVEMENT_DETECTED ─────────────────────────────────────────────────
   if (currentState === "MOVEMENT_DETECTED") {
-    if (point.speed_kmh < MOVEMENT_START_SPEED_KMH) {
+    if (point.speed_kmh !== null && point.speed_kmh < MOVEMENT_START_SPEED_KMH) {
       // Speed dropped — assume GPS drift, reset
       refs.movementStartTime = null;
       refs.candidateStartPoint = null;
@@ -119,7 +119,7 @@ export function transitionTripState(
 
   // ── 3. TRIP_ACTIVE ────────────────────────────────────────────────────────
   if (currentState === "TRIP_ACTIVE") {
-    if (point.speed_kmh < STOP_SPEED_KMH) {
+    if (point.speed_kmh !== null && point.speed_kmh < STOP_SPEED_KMH) {
       refs.stopStartTime = nowMs;
       refs.stopStartPoint = point;
       return { nextState: "TEMPORARY_STOP", stopStartTime: nowMs, stopStartPoint: point };
@@ -136,7 +136,7 @@ export function transitionTripState(
 
     // Resumed movement: speed exceeded threshold or bus left the stop radius
     if (
-      point.speed_kmh >= MOVEMENT_START_SPEED_KMH ||
+      (point.speed_kmh !== null && point.speed_kmh >= MOVEMENT_START_SPEED_KMH) ||
       distanceFromStopM > STOP_RADIUS_METERS
     ) {
       refs.stopStartTime = null;
@@ -192,7 +192,7 @@ export function calculateTripMetrics(
 
   const distance_km = Number((previous.distance_km + incrementalKm).toFixed(3));
   const duration_seconds = Math.max(0, Math.floor((nowMs - tripStartTimestamp) / 1000));
-  const max_speed_kmh = Math.max(previous.max_speed_kmh, newPoint.speed_kmh);
+  const max_speed_kmh = Math.max(previous.max_speed_kmh, newPoint.speed_kmh ?? 0);
   const avg_speed_kmh =
     duration_seconds > 0
       ? Number(((distance_km / duration_seconds) * 3600).toFixed(1))

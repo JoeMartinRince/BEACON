@@ -21,7 +21,7 @@
     "conditions:aggregate": "bun run scripts/aggregateConditions.ts",
     "conditions:aggregate:dry": "bun run scripts/aggregateConditions.ts --dry-run",
     "conditions:verify": "bun run scripts/verifyConditions.ts",
-    "trips:test": "bun test src/lib/__tests__/trip-state-machine.test.ts",
+    "trips:test": "bun test src/lib/__tests__/",
     "trips:verify": "bun run scripts/verifyTrips.ts",
     "e2e:verify": "bun run scripts/verifyEndToEnd.ts"
   },
