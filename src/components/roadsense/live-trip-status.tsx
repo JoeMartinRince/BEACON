@@ -145,7 +145,7 @@ export function LiveTripStatus() {
 
   const displayObservations = isSimulating
     ? ((currentTrip?.observations_count ?? 1284).toLocaleString())
-    : (Math.max(telemetry.gpsSampleCount + telemetry.motionSampleCount, currentTrip?.observations_count ?? 0).toLocaleString());
+    : ((telemetry.observationCount || currentTrip?.observations_count || telemetry.gpsSampleCount || 0).toLocaleString());
 
   const displayGpsSamples = isSimulating
     ? (currentTrip?.gps_points.length ?? 48)
@@ -544,27 +544,142 @@ export function LiveTripStatus() {
                 </div>
               </div>
 
-              {/* Advanced Diagnostics Accordion (collapsible) */}
-              <details className="text-xs text-muted-foreground pt-0.5">
-                <summary className="cursor-pointer font-medium hover:text-foreground text-[11px] select-none py-1 inline-flex items-center gap-1">
-                  <span>Advanced Sensor Diagnostics</span>
+              {/* Advanced Diagnostics Accordion (collapsible) — Section 1 & 14 exact raw metrics */}
+              <details className="text-xs text-muted-foreground pt-0.5 group rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3 font-mono">
+                <summary className="cursor-pointer font-sans font-bold text-xs text-primary flex items-center justify-between select-none">
+                  <span className="flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5" />
+                    Advanced Sensor Diagnostics
+                  </span>
+                  <span className="text-[10px] font-mono text-muted-foreground group-open:rotate-90 transition-transform">
+                    ▶
+                  </span>
                 </summary>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px]">
-                  <div className="p-2 rounded-lg bg-muted/40 border border-border/30">
-                    <span className="text-[10px] text-muted-foreground block">GPS Accuracy</span>
-                    <b className="text-foreground block font-semibold">{displayAccuracy}</b>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2 pt-2.5 mt-2 border-t border-primary/15 text-[11px]">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">GPS STATUS</span>
+                    <b className={telemetry.gpsStatus === "ACTIVE" ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
+                      {telemetry.gpsStatus}
+                    </b>
                   </div>
-                  <div className="p-2 rounded-lg bg-muted/40 border border-border/30">
-                    <span className="text-[10px] text-muted-foreground block">Heading</span>
-                    <b className="text-foreground block font-semibold">{displayHeading}</b>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Movement state</span>
+                    <b className={
+                      telemetry.motionState === "MOVING"
+                        ? "text-emerald-600 font-bold"
+                        : telemetry.motionState === "STATIONARY"
+                          ? "text-blue-600 font-bold"
+                          : "text-amber-600 font-bold"
+                    }>
+                      {telemetry.motionState ?? "null"}
+                    </b>
                   </div>
-                  <div className="p-2 rounded-lg bg-muted/40 border border-border/30">
-                    <span className="text-[10px] text-muted-foreground block">Altitude</span>
-                    <b className="text-foreground block font-semibold">{displayAltitude}</b>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">GPS samples</span>
+                    <b className="text-foreground">{telemetry.gpsSampleCount}</b>
                   </div>
-                  <div className="p-2 rounded-lg bg-muted/40 border border-border/30">
-                    <span className="text-[10px] text-muted-foreground block">GPS Samples</span>
-                    <b className="text-foreground block font-semibold">{displayGpsSamples}</b>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Motion samples (10Hz)</span>
+                    <b className="text-foreground">{telemetry.motionSampleCount}</b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Beacon observations</span>
+                    <b className="text-primary font-bold">
+                      {telemetry.observationCount || currentTrip?.observations_count || telemetry.gpsSampleCount || 0}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Raw GPS speed (coords.speed)</span>
+                    <b className="text-foreground">
+                      {telemetry.rawBrowserSpeedMps !== null && telemetry.rawBrowserSpeedMps !== undefined
+                        ? `${telemetry.rawBrowserSpeedMps.toFixed(2)} m/s`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Raw browser speed</span>
+                    <b className="text-foreground">
+                      {telemetry.browserSpeedKmh !== null && telemetry.browserSpeedKmh !== undefined
+                        ? `${telemetry.browserSpeedKmh.toFixed(1)} km/h`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Calculated GPS speed</span>
+                    <b className="text-foreground">
+                      {telemetry.calculatedSpeedKmh !== null && telemetry.calculatedSpeedKmh !== undefined
+                        ? `${telemetry.calculatedSpeedKmh.toFixed(1)} km/h`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Validated speed</span>
+                    <b className="text-foreground font-black">
+                      {telemetry.validatedSpeedKmh !== null && telemetry.validatedSpeedKmh !== undefined
+                        ? `${telemetry.validatedSpeedKmh.toFixed(1)} km/h`
+                        : (telemetry.speedKmh !== null ? `${telemetry.speedKmh.toFixed(1)} km/h` : "null")}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">GPS accuracy</span>
+                    <b className="text-foreground">
+                      {telemetry.accuracyMeters !== null && telemetry.accuracyMeters !== undefined
+                        ? `±${telemetry.accuracyMeters.toFixed(1)} m`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Last displacement</span>
+                    <b className="text-foreground">
+                      {telemetry.lastStepDistanceMeters !== null && telemetry.lastStepDistanceMeters !== undefined
+                        ? `${telemetry.lastStepDistanceMeters.toFixed(2)} m`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Last GPS interval</span>
+                    <b className="text-foreground">
+                      {telemetry.lastGpsIntervalSeconds !== null && telemetry.lastGpsIntervalSeconds !== undefined
+                        ? `${telemetry.lastGpsIntervalSeconds.toFixed(2)} sec`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Distance</span>
+                    <b className="text-foreground font-bold">
+                      {telemetry.distanceMeters !== null && telemetry.distanceMeters !== undefined
+                        ? `${telemetry.distanceMeters.toFixed(1)} m (${(telemetry.distanceMeters / 1000).toFixed(3)} km)`
+                        : "0.0 m"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Last GPS latitude</span>
+                    <b className="text-foreground">
+                      {telemetry.latitude !== null && telemetry.latitude !== undefined ? telemetry.latitude.toFixed(6) : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Last GPS longitude</span>
+                    <b className="text-foreground">
+                      {telemetry.longitude !== null && telemetry.longitude !== undefined ? telemetry.longitude.toFixed(6) : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Previous timestamp</span>
+                    <b className="text-foreground text-[10px]">
+                      {telemetry.previousGpsTimestamp ? new Date(telemetry.previousGpsTimestamp).toLocaleTimeString() : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Current timestamp</span>
+                    <b className="text-foreground text-[10px]">
+                      {telemetry.currentGpsTimestamp ? new Date(telemetry.currentGpsTimestamp).toLocaleTimeString() : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-sans">Speed Source</span>
+                    <b className="text-foreground text-[10px]">{telemetry.speedSource ?? "null"}</b>
                   </div>
                 </div>
               </details>
@@ -805,7 +920,15 @@ export function LiveTripStatus() {
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5 text-muted-foreground text-[10px]">
                   <div>
-                    Browser GPS speed:{" "}
+                    Raw GPS speed (coords.speed):{" "}
+                    <b className="text-foreground">
+                      {telemetry.rawBrowserSpeedMps !== null && telemetry.rawBrowserSpeedMps !== undefined
+                        ? `${telemetry.rawBrowserSpeedMps.toFixed(2)} m/s`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    Raw browser speed:{" "}
                     <b className="text-foreground">
                       {telemetry.browserSpeedKmh !== null && telemetry.browserSpeedKmh !== undefined
                         ? `${telemetry.browserSpeedKmh.toFixed(1)} km/h`
@@ -817,7 +940,7 @@ export function LiveTripStatus() {
                     <b className="text-foreground">
                       {telemetry.calculatedSpeedKmh !== null && telemetry.calculatedSpeedKmh !== undefined
                         ? `${telemetry.calculatedSpeedKmh.toFixed(1)} km/h`
-                        : "—"}
+                        : "null"}
                     </b>
                   </div>
                   <div>
@@ -825,25 +948,31 @@ export function LiveTripStatus() {
                     <b className="text-foreground font-bold">
                       {telemetry.validatedSpeedKmh !== null && telemetry.validatedSpeedKmh !== undefined
                         ? `${telemetry.validatedSpeedKmh.toFixed(1)} km/h`
-                        : telemetry.speedKmh !== null
-                          ? `${telemetry.speedKmh.toFixed(1)} km/h`
-                          : "—"}
+                        : (telemetry.speedKmh !== null ? `${telemetry.speedKmh.toFixed(1)} km/h` : "null")}
                     </b>
                   </div>
                   <div>
                     GPS accuracy:{" "}
                     <b className="text-foreground">
-                      {telemetry.accuracyMeters !== null
+                      {telemetry.accuracyMeters !== null && telemetry.accuracyMeters !== undefined
                         ? `±${telemetry.accuracyMeters.toFixed(1)} m`
-                        : "—"}
+                        : "null"}
                     </b>
                   </div>
                   <div>
-                    Distance between fixes:{" "}
+                    Last displacement:{" "}
                     <b className="text-foreground">
                       {telemetry.lastStepDistanceMeters !== null && telemetry.lastStepDistanceMeters !== undefined
                         ? `${telemetry.lastStepDistanceMeters.toFixed(2)} m`
-                        : "—"}
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    Last GPS interval:{" "}
+                    <b className="text-foreground">
+                      {telemetry.lastGpsIntervalSeconds !== null && telemetry.lastGpsIntervalSeconds !== undefined
+                        ? `${telemetry.lastGpsIntervalSeconds.toFixed(2)} sec`
+                        : "null"}
                     </b>
                   </div>
                   <div>
@@ -851,6 +980,28 @@ export function LiveTripStatus() {
                     <b className="text-foreground">
                       {telemetry.distanceMeters.toFixed(1)} m ({(telemetry.distanceMeters / 1000).toFixed(3)} km)
                     </b>
+                  </div>
+                  <div>
+                    Previous timestamp:{" "}
+                    <b className="text-foreground">
+                      {telemetry.previousGpsTimestamp ? new Date(telemetry.previousGpsTimestamp).toLocaleTimeString() : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    Current timestamp:{" "}
+                    <b className="text-foreground">
+                      {telemetry.currentGpsTimestamp ? new Date(telemetry.currentGpsTimestamp).toLocaleTimeString() : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    Beacon observations:{" "}
+                    <b className="text-primary font-bold">
+                      {telemetry.observationCount || currentTrip?.observations_count || telemetry.gpsSampleCount || 0}
+                    </b>
+                  </div>
+                  <div>
+                    Motion samples (10Hz):{" "}
+                    <b className="text-foreground">{telemetry.motionSampleCount}</b>
                   </div>
                 </div>
               </div>

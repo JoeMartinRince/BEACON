@@ -142,7 +142,11 @@ export class LiveSensorCollector {
 
   // Telemetry state counters
   private gpsSampleCount = 0;
+  private rawMotionCount = 0;
   private motionSampleCount = 0;
+  private observationCount = 0;
+  private lastSampledMotionTimestamp = 0;
+  private lastTelemetryEmitTimestamp = 0;
   private lastGpsTimestamp: number | null = null;
   private lastMotionTimestamp: number | null = null;
   private lastSpeedKmh: number | null = null;
@@ -171,7 +175,11 @@ export class LiveSensorCollector {
     this.speedCalculator.reset();
     this.rollingWindow.reset();
     this.gpsSampleCount = 0;
+    this.rawMotionCount = 0;
     this.motionSampleCount = 0;
+    this.observationCount = 0;
+    this.lastSampledMotionTimestamp = 0;
+    this.lastTelemetryEmitTimestamp = 0;
 
     this.#watchOnlineStatus();
     this.#startGeolocation();
@@ -220,6 +228,11 @@ export class LiveSensorCollector {
     return this.buffer.length;
   }
 
+  /** Returns total packaged observations count */
+  getObservationCount(): number {
+    return this.observationCount;
+  }
+
   /** Returns latest GPS speed diagnostics for dev mode */
   getDiagnostics(): GpsSpeedDiagnostics {
     return this.speedCalculator.getDiagnostics(this.status.location === "CONNECTED");
@@ -259,11 +272,15 @@ export class LiveSensorCollector {
       longitude: this.lastLng,
       accuracyMeters: this.lastAccuracyM,
       speedKmh: this.lastSpeedKmh,
+      rawBrowserSpeedMps: diag.coordsSpeedRawMps,
       browserSpeedKmh: diag.coordsSpeedKmh,
       calculatedSpeedKmh: diag.calculatedSpeedKmh,
       validatedSpeedKmh: diag.validatedSpeedKmh,
       motionState: diag.motionState,
       lastStepDistanceMeters: diag.lastStepDistanceMeters,
+      lastGpsIntervalSeconds: diag.elapsedSeconds,
+      previousGpsTimestamp: diag.previousTimestamp,
+      currentGpsTimestamp: diag.timestamp,
       speedSource: diag.speedSource,
       distanceMeters: this.speedCalculator.getCumulativeDistanceMeters(),
       headingDegrees: this.lastHeadingDeg,
@@ -288,8 +305,10 @@ export class LiveSensorCollector {
             gamma: this.lastMotion.gyro_y ?? 0,
           }
         : null,
+      rawMotionEventsCount: this.rawMotionCount,
       motionSampleCount: this.motionSampleCount,
       lastMotionUpdate: this.lastMotionTimestamp,
+      observationCount: this.observationCount,
       matchedSegmentId: this.lastMatchResult.segmentId,
       distanceToSegmentMeters: this.lastMatchResult.distanceMeters,
       segmentMatchStatus: this.lastMatchResult.status,
@@ -565,8 +584,9 @@ export class LiveSensorCollector {
     const accel = evt.accelerationIncludingGravity ?? evt.acceleration;
     if (!accel) return;
 
-    this.motionSampleCount += 1;
-    this.lastMotionTimestamp = Date.now();
+    const now = Date.now();
+    this.rawMotionCount += 1;
+    this.lastMotionTimestamp = now;
 
     const reading: MotionReading = {
       accel_x: Number((accel.x ?? 0).toFixed(4)),
@@ -575,28 +595,39 @@ export class LiveSensorCollector {
       gyro_x: evt.rotationRate?.beta !== undefined && evt.rotationRate.beta !== null ? Number(evt.rotationRate.beta.toFixed(4)) : 0,
       gyro_y: evt.rotationRate?.gamma !== undefined && evt.rotationRate.gamma !== null ? Number(evt.rotationRate.gamma.toFixed(4)) : 0,
       gyro_z: evt.rotationRate?.alpha !== undefined && evt.rotationRate.alpha !== null ? Number(evt.rotationRate.alpha.toFixed(4)) : 0,
-      timestamp: Date.now(),
+      timestamp: now,
     };
 
     this.lastMotion = reading;
-
-    // Append to rolling window for feature evaluation
-    this.rollingWindow.addSample({
-      timestamp: reading.timestamp,
-      accel_x: reading.accel_x,
-      accel_y: reading.accel_y,
-      accel_z: reading.accel_z,
-      gyro_x: reading.gyro_x ?? 0,
-      gyro_y: reading.gyro_y ?? 0,
-      gyro_z: reading.gyro_z,
-      speed_kmh: this.lastSpeedKmh ?? 0,
-      hasMotion: true,
-      hasGpsSpeed: this.lastSpeedKmh !== null,
-    });
-
     this.callbacks.onMotionReading(reading);
-    this.callbacks.onFeatureReadiness?.(this.rollingWindow.evaluateReadiness());
-    this.#emitTelemetry();
+
+    // Normalize sensor sampling to ~10Hz (every 95-100ms) for the 5-second ML rolling window
+    if (now - this.lastSampledMotionTimestamp >= 95) {
+      this.lastSampledMotionTimestamp = now;
+      this.motionSampleCount += 1;
+
+      // Append to rolling window for feature evaluation
+      this.rollingWindow.addSample({
+        timestamp: reading.timestamp,
+        accel_x: reading.accel_x,
+        accel_y: reading.accel_y,
+        accel_z: reading.accel_z,
+        gyro_x: reading.gyro_x ?? 0,
+        gyro_y: reading.gyro_y ?? 0,
+        gyro_z: reading.gyro_z,
+        speed_kmh: this.lastSpeedKmh ?? 0,
+        hasMotion: true,
+        hasGpsSpeed: this.lastSpeedKmh !== null,
+      });
+
+      this.callbacks.onFeatureReadiness?.(this.rollingWindow.evaluateReadiness());
+
+      // Throttle telemetry emissions to UI to ~4Hz (every 250ms) to avoid lagging the React render loop
+      if (now - this.lastTelemetryEmitTimestamp >= 250) {
+        this.lastTelemetryEmitTimestamp = now;
+        this.#emitTelemetry();
+      }
+    }
   };
 
   #initMotionSensors(): void {
@@ -627,6 +658,7 @@ export class LiveSensorCollector {
   // ── Batch queue ────────────────────────────────────────────────────────────
 
   #enqueue(observation: BatchObservation): void {
+    this.observationCount += 1;
     // Evict oldest if buffer is full (ring-buffer behaviour)
     if (this.buffer.length >= MAX_OFFLINE_BUFFER_SIZE) {
       this.buffer.shift();

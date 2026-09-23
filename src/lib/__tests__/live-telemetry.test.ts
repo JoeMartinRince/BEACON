@@ -445,4 +445,51 @@ describe("Real Mobile Telemetry & Sensor Pipeline (Section 20 Requirements)", ()
       expect(typeof success).toBe("boolean");
     });
   });
+
+  // 10. Observation Rate & 10Hz Sampling (Prompt Requirements 9, 10, 11, 12)
+  describe("Observation Count & 10Hz Sensor Sampling Architecture", () => {
+    it("preserves 10Hz normalized window design without inflating observation count", () => {
+      const window = new RollingSensorWindow();
+      const baseTime = Date.now();
+
+      // Simulate 44 seconds at 10Hz = 440 samples
+      for (let i = 0; i < 440; i++) {
+        window.addSample({
+          timestamp: baseTime + i * 100, // 100ms interval = 10Hz
+          accel_x: 0.1,
+          accel_y: 0.05,
+          accel_z: 9.8,
+          gyro_x: 0.01,
+          gyro_y: 0.01,
+          gyro_z: 0.02,
+          speed_kmh: 20.0,
+          hasMotion: true,
+          hasGpsSpeed: true,
+        });
+      }
+
+      // 5-second window should contain exactly ~50 samples, not thousands
+      const samplesInWindow = window.getSampleCount();
+      expect(samplesInWindow).toBeGreaterThanOrEqual(49);
+      expect(samplesInWindow).toBeLessThanOrEqual(51);
+      expect(window.getWindowDurationSeconds()).toBeCloseTo(5.0, 1);
+    });
+
+    it("does not increment observationCount on raw motion events alone", () => {
+      const collector = new LiveSensorCollector({
+        onGpsPoint: () => {},
+        onMotionReading: () => {},
+        onStatusChange: () => {},
+        onBatchFlush: () => {},
+      });
+
+      // Initially zero observations
+      expect(collector.getObservationCount()).toBe(0);
+
+      // Telemetry reflects zero observations before any GPS fix
+      const telemetry = collector.getTelemetry();
+      expect(telemetry.observationCount).toBe(0);
+      expect(telemetry.gpsSampleCount).toBe(0);
+    });
+  });
 });

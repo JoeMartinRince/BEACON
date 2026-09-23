@@ -114,7 +114,8 @@ const SAMPLE_TRIPS: Trip[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 heading("Rule 1 — Required source files exist");
-const BASE = resolve(import.meta.dir, "..");
+const currentDir = (import.meta as any).dir ?? (import.meta as any).dirname ?? ".";
+const BASE = resolve(currentDir, "..");
 check("src/lib/trip-types.ts exists", existsSync(resolve(BASE, "src/lib/trip-types.ts")));
 check("src/lib/trip-state-machine.ts exists", existsSync(resolve(BASE, "src/lib/trip-state-machine.ts")));
 check("src/lib/live-sensor-collector.ts exists", existsSync(resolve(BASE, "src/lib/live-sensor-collector.ts")));

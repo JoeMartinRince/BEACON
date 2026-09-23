@@ -146,11 +146,15 @@ export interface LiveTelemetry {
   longitude: number | null;
   accuracyMeters: number | null;
   speedKmh: number | null;
+  rawBrowserSpeedMps?: number | null | undefined;
   browserSpeedKmh?: number | null | undefined;
   calculatedSpeedKmh?: number | null | undefined;
   validatedSpeedKmh?: number | null | undefined;
   motionState?: "MOVING" | "STATIONARY" | "GPS_UNCERTAIN" | undefined;
   lastStepDistanceMeters?: number | null | undefined;
+  lastGpsIntervalSeconds?: number | null | undefined;
+  previousGpsTimestamp?: number | null | undefined;
+  currentGpsTimestamp?: number | null | undefined;
   speedSource?: "VALIDATED_BROWSER_SPEED" | "CALCULATED_GPS_SPEED" | "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
   distanceMeters: number;
   headingDegrees: number | null;
@@ -164,8 +168,10 @@ export interface LiveTelemetry {
   gyroscopeAvailable: boolean;
   accelerometer: { x: number; y: number; z: number } | null;
   gyroscope: { alpha: number; beta: number; gamma: number } | null;
+  rawMotionEventsCount?: number | undefined;
   motionSampleCount: number;
   lastMotionUpdate: number | null;
+  observationCount: number;
   matchedSegmentId: string | null;
   distanceToSegmentMeters: number | null;
   segmentMatchStatus: "MATCHED" | "OUT_OF_CORRIDOR" | "POOR_ACCURACY" | "SEARCHING";

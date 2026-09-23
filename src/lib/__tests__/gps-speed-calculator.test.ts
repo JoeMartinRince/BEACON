@@ -292,4 +292,89 @@ describe("GpsSpeedCalculator — Section 13 Required Test Scenarios", () => {
     expect(meters).toBeGreaterThan(3300);
     expect(meters).toBeLessThan(3500);
   });
+
+  // ── 14. Section 3 Example: 6 meters over 2 seconds yields 10.8 km/h ────────
+  test("14. 6 meters over 2 seconds yields 10.8 km/h (Section 3 requirement)", () => {
+    const t0 = 1000000;
+    calc.calculate({
+      coords: { latitude: 10.015800, longitude: 76.341800, accuracy: 8.0, speed: null },
+      timestamp: t0,
+    });
+
+    // Move ~6.0 meters north in 2.0 seconds
+    // 0.000054 deg latitude ≈ 6.0 meters
+    const res2 = calc.calculate({
+      coords: { latitude: 10.015854, longitude: 76.341800, accuracy: 8.0, speed: null },
+      timestamp: t0 + 2000,
+    });
+
+    expect(res2.calculatedSpeedKmh).not.toBeNull();
+    expect(res2.calculatedSpeedKmh!).toBeCloseTo(10.8, 0);
+    expect(res2.speedKmh).not.toBeNull();
+    expect(res2.speedKmh!).toBeGreaterThan(9.0);
+    expect(res2.motionState).toBe("MOVING");
+    expect(res2.status).toBe("VALID");
+    expect(res2.distanceMeters).toBeGreaterThan(5.5);
+    expect(res2.distanceMeters).toBeLessThan(6.5);
+  });
+
+  // ── 15. Section 4: Accuracy of 15m does NOT destroy speed ──────────────────
+  test("15. GPS accuracy 15m does NOT destroy calculated speed of 6m over 2 seconds (Section 4 requirement)", () => {
+    const t0 = 1000000;
+    calc.calculate({
+      coords: { latitude: 10.015800, longitude: 76.341800, accuracy: 15.0, speed: null },
+      timestamp: t0,
+    });
+
+    // Move 6 meters over 2s with 15m GPS accuracy
+    const res2 = calc.calculate({
+      coords: { latitude: 10.015854, longitude: 76.341800, accuracy: 15.0, speed: null },
+      timestamp: t0 + 2000,
+    });
+
+    expect(res2.motionState).toBe("MOVING");
+    expect(res2.speedKmh).not.toBe(0);
+    expect(res2.speedKmh!).toBeGreaterThan(9.0);
+    expect(res2.cumulativeDistanceMeters).toBeGreaterThan(5.5);
+  });
+
+  // ── 16. Small legitimate movement (walking 1.2m in 1s) yields ~4.3 km/h ─────
+  test("16. Small legitimate movement (walking 1.2m in 1s) yields ~4.3 km/h", () => {
+    const t0 = 1000000;
+    calc.calculate({
+      coords: { latitude: 10.015800, longitude: 76.341800, accuracy: 8.0, speed: null },
+      timestamp: t0,
+    });
+
+    // 0.0000108 deg latitude ≈ 1.2 meters in 1 second
+    const res2 = calc.calculate({
+      coords: { latitude: 10.0158108, longitude: 76.341800, accuracy: 8.0, speed: null },
+      timestamp: t0 + 1000,
+    });
+
+    expect(res2.motionState).toBe("MOVING");
+    expect(res2.calculatedSpeedKmh).toBeGreaterThan(3.5);
+    expect(res2.speedKmh).toBeGreaterThan(3.5);
+    expect(res2.cumulativeDistanceMeters).toBeGreaterThan(1.0);
+  });
+
+  // ── 17. Stale browser speed 0 overridden by physical displacement ──────────
+  test("17. Browser speed reporting 0 while physical displacement indicates movement uses calculated speed", () => {
+    const t0 = 1000000;
+    calc.calculate({
+      coords: { latitude: 10.015800, longitude: 76.341800, accuracy: 8.0, speed: 0 },
+      timestamp: t0,
+    });
+
+    // Moved ~6m in 2s, but browser stubbornly reports speed = 0
+    const res2 = calc.calculate({
+      coords: { latitude: 10.015854, longitude: 76.341800, accuracy: 8.0, speed: 0 },
+      timestamp: t0 + 2000,
+    });
+
+    expect(res2.status).toBe("INCONSISTENT_REJECTED");
+    expect(res2.source).toBe("CALCULATED_GPS_SPEED");
+    expect(res2.motionState).toBe("MOVING");
+    expect(res2.speedKmh).toBeGreaterThan(9.0);
+  });
 });

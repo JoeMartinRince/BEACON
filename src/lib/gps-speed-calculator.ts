@@ -1,18 +1,17 @@
 /**
- * Beacon GPS Speed & Distance Telemetry Calculator
+ * Beacon GPS Speed Calculator & Telemetry Validation Engine
  *
- * Implements high-reliability telemetry determination for mobile browsers:
- * 1. FUNDAMENTAL RULE: If the device has not demonstrated meaningful GPS movement,
- *    speedKmh MUST be 0. Never display a non-zero speed when movement is effectively zero.
- * 2. Never trust position.coords.speed blindly. Validate against actual Haversine displacement.
- * 3. Dynamic movement threshold accounts for GPS accuracy of both fixes (prevents GPS jitter while sitting still).
- * 4. Calculated GPS speed (displacement / elapsed) serves as the primary ground truth.
- * 5. Validates browser-reported speed against calculated speed; rejects wildly inconsistent spikes.
- * 6. Explicit motion states: MOVING, STATIONARY, GPS_UNCERTAIN.
- * 7. When STATIONARY: speedKmh = 0, distance does not accumulate.
- * 8. When GPS_UNCERTAIN: speedKmh = null (displays as "—"), avoiding false readings.
- * 9. Distance and speed strictly agree.
- * 10. Lightweight EMA smoothing applied only to validated movement.
+ * Implements:
+ * 1. Physical displacement-based speed calculation via the Haversine formula:
+ *    calculatedSpeedKmh = (distanceMeters / elapsedSeconds) * 3.6
+ * 2. Stationary jitter deadband (0.8m / 1.2 km/h) to reliably filter desk drift
+ *    without suppressing walking (3-5 km/h) or low-speed vehicle movement.
+ * 3. Browser coords.speed cross-validation against physical displacement.
+ *    Rejects noisy/stale browser speeds (e.g. 21 km/h while stationary) and
+ *    falls back to calculated GPS speed when coords.speed is null or inconsistent.
+ * 4. GPS accuracy guardrails: poor accuracy (> 50m) flags uncertainty without
+ *    scaling the stationary threshold or destroying legitimate low-speed movement.
+ * 5. Full raw diagnostic snapshots with exact raw values (null preserved).
  */
 
 export interface RawGpsFix {
@@ -50,6 +49,8 @@ export type GpsSpeedStatus =
 export interface GpsSpeedResult {
   /** Validated speed in km/h, rounded to 1 decimal place. null if uncertain/unavailable. */
   speedKmh: number | null;
+  /** Exact raw coords.speed in m/s directly from the browser, or null */
+  rawCoordsSpeedMps: number | null;
   /** Raw coords.speed converted to km/h, if provided by the device */
   rawCoordsSpeedKmh: number | null;
   /** Calculated speed from consecutive GPS positions (km/h) */
@@ -80,6 +81,7 @@ export interface GpsSpeedDiagnostics {
   gpsAvailable: boolean;
   latitude: number | null;
   longitude: number | null;
+  coordsSpeedRawMps: number | null;
   coordsSpeedRaw: number | null;
   coordsSpeedKmh: number | null;
   calculatedSpeedKmh: number | null;
@@ -88,11 +90,13 @@ export interface GpsSpeedDiagnostics {
   currentSpeedKmh: number | null;
   lastStepDistanceMeters: number | null;
   cumulativeDistanceMeters: number;
-  gpsAccuracyMeters: number;
+  gpsAccuracyMeters: number | null;
   motionState: GpsMotionState;
   altitudeMeters: number | null;
   headingDegrees: number | null;
-  timestamp: number;
+  timestamp: number | null;
+  previousTimestamp: number | null;
+  elapsedSeconds: number | null;
   samplesReceivedCount: number;
   speedSource: GpsSpeedSource;
   lastCalculationStatus: GpsSpeedStatus;
@@ -102,20 +106,33 @@ export interface GpsSpeedDiagnostics {
 // Default Constants & Configuration
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const DEFAULT_BASE_STATIONARY_THRESHOLD_M = 2.0;
-export const DEFAULT_MAX_STATIONARY_THRESHOLD_M = 8.0;
-export const DEFAULT_ACCURACY_FACTOR = 0.25;
+/** Stationary jitter displacement deadband (meters) */
+export const STATIONARY_DEADBAND_METERS = 0.8;
+
+/** Minimum calculated speed to consider the device moving (km/h) */
+export const MIN_MOVING_SPEED_KMH = 1.2;
+
+/** Maximum plausible vehicle speed on public roads (km/h) */
 export const MAX_VALID_SPEED_KMH = 140.0;
-export const POOR_ACCURACY_THRESHOLD_M = 45.0;
+
+/** GPS horizontal accuracy threshold above which fixes are considered too degraded for reliable speed (m) */
+export const POOR_ACCURACY_THRESHOLD_M = 50.0;
+
+/** Maximum single-step displacement between updates before rejecting as an outlier teleportation (m) */
 export const MAX_DISTANCE_STEP_METERS = 300.0;
+
+/** Minimum elapsed seconds between fixes to calculate derivative speed */
 export const MIN_ELAPSED_SECONDS = 0.25;
+
+/** Maximum gap between GPS updates before resetting baseline (seconds) */
 export const MAX_ELAPSED_SECONDS = 30.0;
-export const SPEED_SMOOTHING_ALPHA = 0.65;
+
+/** Smoothing factor for exponential moving average (EMA) when moving */
+export const SPEED_SMOOTHING_ALPHA = 0.5;
 
 export interface GpsCalculatorOptions {
-  baseStationaryThresholdM?: number;
-  accuracyFactor?: number;
-  maxStationaryThresholdM?: number;
+  stationaryDeadbandM?: number;
+  minMovingSpeedKmh?: number;
   poorAccuracyThresholdM?: number;
   maxValidSpeedKmh?: number;
   smoothingAlpha?: number;
@@ -144,7 +161,7 @@ export function calculateDistanceMeters(
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return Number((R * c).toFixed(2));
 }
 
 export function isValidCoordinate(lat: number, lng: number): boolean {
@@ -161,38 +178,26 @@ export function isValidCoordinate(lat: number, lng: number): boolean {
 }
 
 /**
- * Calculates a dynamic movement noise threshold in metres based on the reported
- * GPS accuracies of the two consecutive fixes.
- */
-export function computeMovementThreshold(
-  acc1: number,
-  acc2: number,
-  baseThresholdM = DEFAULT_BASE_STATIONARY_THRESHOLD_M,
-  accuracyFactor = DEFAULT_ACCURACY_FACTOR,
-  maxThresholdM = DEFAULT_MAX_STATIONARY_THRESHOLD_M,
-): number {
-  const avgAccuracy = (acc1 + acc2) / 2;
-  const scaled = avgAccuracy * accuracyFactor;
-  return Math.max(baseThresholdM, Math.min(maxThresholdM, scaled));
-}
-
-/**
- * Cross-validates browser-reported speed against calculated GPS displacement speed.
- * Prevents trusting noisy or stale coords.speed when stationary or in an outlier jump.
+ * Validates browser-reported speed against calculated GPS displacement speed.
+ *
+ * Priority:
+ * 1. If device is stationary (displacement in jitter deadband): speed MUST be 0.
+ * 2. If browser speed is available and consistent with displacement: use browser speed.
+ * 3. If browser speed is null or wildly inconsistent with displacement: use calculated GPS speed.
  */
 export function validateSpeed(
   rawCoordsSpeedKmh: number | null,
   calculatedSpeedKmh: number,
   _stepDistanceMeters: number,
   _elapsedSeconds: number,
-  prevValidatedSpeedKmh: number | null,
+  _prevValidatedSpeedKmh: number | null,
   isStationary: boolean,
 ): {
   validatedSpeedKmh: number;
   source: GpsSpeedSource;
   status: GpsSpeedStatus;
 } {
-  // 1. If device is stationary, speed MUST be 0
+  // 1. If device is stationary, validated speed MUST be 0
   if (isStationary) {
     return {
       validatedSpeedKmh: 0,
@@ -204,7 +209,7 @@ export function validateSpeed(
   // 2. Reject outlier calculated speeds (> 140 km/h)
   if (calculatedSpeedKmh > MAX_VALID_SPEED_KMH) {
     return {
-      validatedSpeedKmh: prevValidatedSpeedKmh ?? 0,
+      validatedSpeedKmh: 0,
       source: "UNAVAILABLE",
       status: "OUTLIER_REJECTED",
     };
@@ -212,6 +217,15 @@ export function validateSpeed(
 
   // 3. If browser speed is available, test consistency against calculated speed
   if (rawCoordsSpeedKmh !== null && rawCoordsSpeedKmh >= 0) {
+    // If browser reports 0 or near 0 while physical displacement shows active movement (>= 2.5 km/h)
+    if (rawCoordsSpeedKmh < 0.5 && calculatedSpeedKmh >= MIN_MOVING_SPEED_KMH) {
+      return {
+        validatedSpeedKmh: calculatedSpeedKmh,
+        source: "CALCULATED_GPS_SPEED",
+        status: "INCONSISTENT_REJECTED",
+      };
+    }
+
     if (rawCoordsSpeedKmh > MAX_VALID_SPEED_KMH) {
       return {
         validatedSpeedKmh: calculatedSpeedKmh,
@@ -221,7 +235,7 @@ export function validateSpeed(
     }
 
     const delta = Math.abs(rawCoordsSpeedKmh - calculatedSpeedKmh);
-    const acceptableTolerance = Math.max(12.0, calculatedSpeedKmh * 0.45);
+    const acceptableTolerance = Math.max(10.0, calculatedSpeedKmh * 0.45);
 
     if (delta <= acceptableTolerance) {
       // Browser speed agrees with physical displacement
@@ -231,7 +245,7 @@ export function validateSpeed(
         status: "VALID",
       };
     } else {
-      // Browser speed is inconsistent with displacement — reject browser speed
+      // Browser speed is inconsistent with displacement — fallback to calculated speed
       return {
         validatedSpeedKmh: calculatedSpeedKmh,
         source: "CALCULATED_GPS_SPEED",
@@ -260,12 +274,13 @@ export class GpsSpeedCalculator {
     accuracy: number;
   } | null = null;
 
+  private prevTimestamp: number | null = null;
   private prevSmoothedSpeedKmh: number | null = null;
   private cumulativeDistanceMeters = 0.0;
   private samplesReceivedCount = 0;
   private lastResult: GpsSpeedResult | null = null;
-  private lastAccuracyMeters = 0;
-  private lastTimestamp = 0;
+  private lastAccuracyMeters: number | null = null;
+  private lastTimestamp: number | null = null;
   private lastLat: number | null = null;
   private lastLng: number | null = null;
   private lastAltitude: number | null = null;
@@ -274,9 +289,8 @@ export class GpsSpeedCalculator {
 
   constructor(options?: GpsCalculatorOptions) {
     this.options = {
-      baseStationaryThresholdM: options?.baseStationaryThresholdM ?? DEFAULT_BASE_STATIONARY_THRESHOLD_M,
-      accuracyFactor: options?.accuracyFactor ?? DEFAULT_ACCURACY_FACTOR,
-      maxStationaryThresholdM: options?.maxStationaryThresholdM ?? DEFAULT_MAX_STATIONARY_THRESHOLD_M,
+      stationaryDeadbandM: options?.stationaryDeadbandM ?? STATIONARY_DEADBAND_METERS,
+      minMovingSpeedKmh: options?.minMovingSpeedKmh ?? MIN_MOVING_SPEED_KMH,
       poorAccuracyThresholdM: options?.poorAccuracyThresholdM ?? POOR_ACCURACY_THRESHOLD_M,
       maxValidSpeedKmh: options?.maxValidSpeedKmh ?? MAX_VALID_SPEED_KMH,
       smoothingAlpha: options?.smoothingAlpha ?? SPEED_SMOOTHING_ALPHA,
@@ -285,12 +299,13 @@ export class GpsSpeedCalculator {
 
   reset(): void {
     this.prevFix = null;
+    this.prevTimestamp = null;
     this.prevSmoothedSpeedKmh = null;
     this.cumulativeDistanceMeters = 0.0;
     this.samplesReceivedCount = 0;
     this.lastResult = null;
-    this.lastAccuracyMeters = 0;
-    this.lastTimestamp = 0;
+    this.lastAccuracyMeters = null;
+    this.lastTimestamp = null;
     this.lastLat = null;
     this.lastLng = null;
     this.lastAltitude = null;
@@ -307,12 +322,12 @@ export class GpsSpeedCalculator {
 
   calculate(fix: RawGpsFix): GpsSpeedResult {
     this.samplesReceivedCount += 1;
-    this.lastAccuracyMeters = fix.coords.accuracy ?? 0;
+    this.lastAccuracyMeters = fix.coords.accuracy ?? null;
     this.lastTimestamp = fix.timestamp || Date.now();
 
     const lat = fix.coords.latitude;
     const lng = fix.coords.longitude;
-    const accuracy = fix.coords.accuracy;
+    const accuracy = fix.coords.accuracy ?? 10.0;
     const timestamp = fix.timestamp || Date.now();
 
     const altitude =
@@ -332,16 +347,22 @@ export class GpsSpeedCalculator {
     this.lastAltitude = altitude;
     this.lastHeading = heading;
 
-    const rawCoordsSpeed = fix.coords.speed;
+    // Read raw browser speed without converting null to 0
+    const rawCoordsSpeedMps =
+      typeof fix.coords.speed === "number" && Number.isFinite(fix.coords.speed) && fix.coords.speed >= 0
+        ? Number(fix.coords.speed.toFixed(2))
+        : null;
+
     const rawCoordsSpeedKmh =
-      typeof rawCoordsSpeed === "number" && Number.isFinite(rawCoordsSpeed) && rawCoordsSpeed >= 0
-        ? Number((rawCoordsSpeed * 3.6).toFixed(1))
+      rawCoordsSpeedMps !== null
+        ? Number((rawCoordsSpeedMps * 3.6).toFixed(1))
         : null;
 
     // 1. Validate coordinates
     if (!isValidCoordinate(lat, lng)) {
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh: null,
         fallbackSpeedKmh: null,
@@ -359,12 +380,14 @@ export class GpsSpeedCalculator {
       return result;
     }
 
-    // 2. First Sample: cannot compute displacement yet.
-    // Section 1 & 13 rule: No speed calculation until second valid sample exists.
+    // 2. First Sample: cannot compute displacement yet
+    // Section 1 & 10 rule: Speed is null until second valid sample exists.
     if (this.prevFix === null) {
       this.prevFix = { lat, lng, timestamp, accuracy };
+      this.prevTimestamp = null;
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh: null,
         fallbackSpeedKmh: null,
@@ -383,12 +406,15 @@ export class GpsSpeedCalculator {
     }
 
     // 3. Elapsed Time Check
-    const elapsedSeconds = (timestamp - this.prevFix.timestamp) / 1000;
+    const prevTime = this.prevFix.timestamp;
+    this.prevTimestamp = prevTime;
+    const elapsedSeconds = (timestamp - prevTime) / 1000;
 
     // Duplicate or backwards timestamp
     if (elapsedSeconds <= 0) {
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh: null,
         fallbackSpeedKmh: null,
@@ -406,33 +432,13 @@ export class GpsSpeedCalculator {
       return result;
     }
 
-    // Very rapid fix (< 0.25s) — skip division noise
-    if (elapsedSeconds < MIN_ELAPSED_SECONDS) {
-      const result: GpsSpeedResult = {
-        speedKmh: this.prevSmoothedSpeedKmh,
-        rawCoordsSpeedKmh,
-        calculatedSpeedKmh: null,
-        fallbackSpeedKmh: null,
-        validatedSpeedKmh: this.prevSmoothedSpeedKmh,
-        motionState: this.prevSmoothedSpeedKmh && this.prevSmoothedSpeedKmh > 0 ? "MOVING" : "STATIONARY",
-        source: this.lastResult?.source ?? "UNAVAILABLE",
-        status: "VALID",
-        distanceMeters: null,
-        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
-        elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
-        altitudeMeters: altitude,
-        headingDegrees: heading,
-      };
-      this.lastResult = result;
-      return result;
-    }
-
-    // Sleep gap (> 30s) — reset reference baseline
+    // Long sleep gap (> 30s) — reset reference baseline
     if (elapsedSeconds > MAX_ELAPSED_SECONDS) {
       this.prevFix = { lat, lng, timestamp, accuracy };
       this.prevSmoothedSpeedKmh = null;
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh: null,
         fallbackSpeedKmh: null,
@@ -451,11 +457,12 @@ export class GpsSpeedCalculator {
     }
 
     // 4. GPS Accuracy Check
-    // If accuracy is poor (> 45m), do not interpret tiny position changes as real movement
+    // If accuracy is severely degraded (> 50m), do not compute derivative speed
     if (accuracy > this.options.poorAccuracyThresholdM || this.prevFix.accuracy > this.options.poorAccuracyThresholdM) {
       this.prevFix = { lat, lng, timestamp, accuracy };
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh: null,
         fallbackSpeedKmh: null,
@@ -481,20 +488,12 @@ export class GpsSpeedCalculator {
       lng,
     );
 
-    // Compute dynamic movement noise threshold based on accuracy of both fixes
-    const movementThresholdM = computeMovementThreshold(
-      this.prevFix.accuracy,
-      accuracy,
-      this.options.baseStationaryThresholdM,
-      this.options.accuracyFactor,
-      this.options.maxStationaryThresholdM,
-    );
-
     // 6. Outlier Step Distance Jump (e.g. cell tower teleport > 300m)
     if (stepDistanceMeters > MAX_DISTANCE_STEP_METERS) {
       this.prevFix = { lat, lng, timestamp, accuracy };
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh: null,
         fallbackSpeedKmh: null,
@@ -512,41 +511,16 @@ export class GpsSpeedCalculator {
       return result;
     }
 
-    // 7. STATIONARY CHECK (Fundamental Rule)
-    // If distance movement is below the dynamic threshold: phone is STATIONARY
-    // Speed MUST be 0. Never trust browser coords.speed when stationary.
-    if (stepDistanceMeters < movementThresholdM) {
-      this.prevFix = { lat, lng, timestamp, accuracy };
-      this.prevSmoothedSpeedKmh = 0;
-
-      const result: GpsSpeedResult = {
-        speedKmh: 0,
-        rawCoordsSpeedKmh,
-        calculatedSpeedKmh: 0,
-        fallbackSpeedKmh: 0,
-        validatedSpeedKmh: 0,
-        motionState: "STATIONARY",
-        source: "STATIONARY",
-        status: "STATIONARY",
-        distanceMeters: Number(stepDistanceMeters.toFixed(2)),
-        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
-        elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
-        altitudeMeters: altitude,
-        headingDegrees: heading,
-      };
-      this.lastResult = result;
-      return result;
-    }
-
-    // 8. Meaningful Movement Exists -> Calculate Reference GPS Speed
+    // 7. Calculate Derivative Displacement Speed
     const calculatedSpeedMps = stepDistanceMeters / elapsedSeconds;
     const calculatedSpeedKmh = Number((calculatedSpeedMps * 3.6).toFixed(1));
 
-    // Reject physically impossible speeds
+    // Reject physically impossible speeds (> 140 km/h)
     if (calculatedSpeedKmh > this.options.maxValidSpeedKmh) {
       this.prevFix = { lat, lng, timestamp, accuracy };
       const result: GpsSpeedResult = {
         speedKmh: null,
+        rawCoordsSpeedMps,
         rawCoordsSpeedKmh,
         calculatedSpeedKmh,
         fallbackSpeedKmh: calculatedSpeedKmh,
@@ -564,19 +538,50 @@ export class GpsSpeedCalculator {
       return result;
     }
 
-    // 9. Speed Validation & Consistency
+    // 8. Stationary State & Deadband Evaluation
+    // Device is stationary when displacement is within jitter deadband AND calculated speed is below threshold
+    const isStationary =
+      stepDistanceMeters === 0 ||
+      (stepDistanceMeters <= this.options.stationaryDeadbandM && calculatedSpeedKmh < this.options.minMovingSpeedKmh) ||
+      calculatedSpeedKmh < 0.5;
+
+    // 9. Speed Validation
     const validation = validateSpeed(
       rawCoordsSpeedKmh,
       calculatedSpeedKmh,
       stepDistanceMeters,
       elapsedSeconds,
       this.prevSmoothedSpeedKmh,
-      false,
+      isStationary,
     );
 
     const validatedSpeed = validation.validatedSpeedKmh;
 
-    // 10. Lightweight EMA Smoothing (only while moving)
+    if (isStationary) {
+      this.prevFix = { lat, lng, timestamp, accuracy };
+      this.prevSmoothedSpeedKmh = 0;
+
+      const result: GpsSpeedResult = {
+        speedKmh: 0,
+        rawCoordsSpeedMps,
+        rawCoordsSpeedKmh,
+        calculatedSpeedKmh: 0,
+        fallbackSpeedKmh: 0,
+        validatedSpeedKmh: 0,
+        motionState: "STATIONARY",
+        source: "STATIONARY",
+        status: "STATIONARY",
+        distanceMeters: Number(stepDistanceMeters.toFixed(2)),
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
+        altitudeMeters: altitude,
+        headingDegrees: heading,
+      };
+      this.lastResult = result;
+      return result;
+    }
+
+    // 10. Moving Vehicle / Pedestrian: Lightweight EMA Smoothing
     const smoothed =
       this.prevSmoothedSpeedKmh !== null && this.prevSmoothedSpeedKmh > 0
         ? this.options.smoothingAlpha * validatedSpeed +
@@ -587,11 +592,12 @@ export class GpsSpeedCalculator {
     this.prevSmoothedSpeedKmh = finalSpeed;
     this.prevFix = { lat, lng, timestamp, accuracy };
 
-    // Accumulate distance ONLY from validated movement
+    // Accumulate distance ONLY from verified movement
     this.cumulativeDistanceMeters += stepDistanceMeters;
 
     const result: GpsSpeedResult = {
       speedKmh: finalSpeed,
+      rawCoordsSpeedMps,
       rawCoordsSpeedKmh,
       calculatedSpeedKmh,
       fallbackSpeedKmh: calculatedSpeedKmh,
@@ -618,10 +624,8 @@ export class GpsSpeedCalculator {
       gpsAvailable: isAvailable,
       latitude: this.lastLat,
       longitude: this.lastLng,
-      coordsSpeedRaw:
-        this.lastResult?.rawCoordsSpeedKmh !== null && this.lastResult?.rawCoordsSpeedKmh !== undefined
-          ? Number((this.lastResult.rawCoordsSpeedKmh / 3.6).toFixed(2))
-          : null,
+      coordsSpeedRawMps: this.lastResult?.rawCoordsSpeedMps ?? null,
+      coordsSpeedRaw: this.lastResult?.rawCoordsSpeedMps ?? null,
       coordsSpeedKmh: this.lastResult?.rawCoordsSpeedKmh ?? null,
       calculatedSpeedKmh: this.lastResult?.calculatedSpeedKmh ?? null,
       calculatedFallbackSpeedKmh: this.lastResult?.calculatedSpeedKmh ?? null,
@@ -629,11 +633,16 @@ export class GpsSpeedCalculator {
       currentSpeedKmh: this.lastResult?.speedKmh ?? null,
       lastStepDistanceMeters: this.lastResult?.distanceMeters ?? null,
       cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
-      gpsAccuracyMeters: Number(this.lastAccuracyMeters.toFixed(1)),
+      gpsAccuracyMeters:
+        this.lastAccuracyMeters !== null && this.lastAccuracyMeters > 0
+          ? Number(this.lastAccuracyMeters.toFixed(1))
+          : null,
       motionState: this.lastResult?.motionState ?? "GPS_UNCERTAIN",
       altitudeMeters: this.lastAltitude,
       headingDegrees: this.lastHeading,
       timestamp: this.lastTimestamp,
+      previousTimestamp: this.prevTimestamp,
+      elapsedSeconds: this.lastResult?.elapsedSeconds ?? null,
       samplesReceivedCount: this.samplesReceivedCount,
       speedSource: this.lastResult?.source ?? "UNAVAILABLE",
       lastCalculationStatus: this.lastResult?.status ?? "FIRST_SAMPLE",

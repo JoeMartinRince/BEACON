@@ -50,7 +50,8 @@ function heading(title: string) {
   console.log(`\n\x1b[1m${title}\x1b[0m`);
 }
 
-const BASE = resolve(import.meta.dir, "..");
+const currentDir = (import.meta as any).dir ?? (import.meta as any).dirname ?? ".";
+const BASE = resolve(currentDir, "..");
 
 heading("BEACON END-TO-END PIPELINE VERIFICATION (PROMPT 5)");
 
