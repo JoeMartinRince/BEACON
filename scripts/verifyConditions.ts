@@ -19,7 +19,7 @@ import {
   SegmentInputMetrics,
 } from "../src/lib/condition-engine";
 
-const ROOT_DIR = path.resolve(__dirname, "..");
+const ROOT_DIR = process.cwd();
 const DATA_DIR = path.join(ROOT_DIR, "data", "synthetic");
 const REPORT_FILE = path.join(ROOT_DIR, "ml", "output", "segment_conditions_report.json");
 const DERIVED_CSV = path.join(DATA_DIR, "segment_conditions_generated.csv");

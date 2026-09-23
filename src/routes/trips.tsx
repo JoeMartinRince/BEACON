@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageTitle } from "@/components/roadsense/shared";
-import { LiveTripStatus } from "@/components/roadsense/live-trip-status";
 import { TripHistory } from "@/components/roadsense/trip-history";
 
 export const Route = createFileRoute("/trips")({
@@ -29,7 +28,6 @@ function TripsPage() {
         title="Trips & Journey Detection"
         subtitle="Automatic zero-touch trip detection, continuous corridor tracking, and historical journeys."
       />
-      <LiveTripStatus />
       <TripHistory />
     </>
   );

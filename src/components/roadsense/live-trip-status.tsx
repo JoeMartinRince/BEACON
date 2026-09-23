@@ -465,13 +465,49 @@ export function LiveTripStatus() {
                 </span>
               </div>
 
-              {/* SECONDARY: 4 Prominent Core Telemetry Metrics */}
+              {/* SECONDARY: 4 Prominent Core Telemetry Metrics (Speed, Distance, Observations, Current Segment) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {/* 1. GPS */}
-                <div className="p-3 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">GPS</span>
+                {/* 1. Speed */}
+                <div className="p-3 sm:p-3.5 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">SPEED</span>
+                  <b className="text-foreground block font-extrabold text-lg sm:text-xl mt-1">
+                    {displaySpeed}
+                  </b>
+                </div>
+
+                {/* 2. Distance */}
+                <div className="p-3 sm:p-3.5 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">DISTANCE</span>
+                  <b className="text-foreground block font-extrabold text-lg sm:text-xl mt-1">
+                    {displayDistance}
+                  </b>
+                </div>
+
+                {/* 3. Observations */}
+                <div className="p-3 sm:p-3.5 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">OBSERVATIONS</span>
+                  <b className="text-primary block font-extrabold text-lg sm:text-xl mt-1">
+                    {displayObservations}
+                  </b>
+                </div>
+
+                {/* 4. Current Segment */}
+                <div className="p-3 sm:p-3.5 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">CURRENT SEGMENT</span>
+                  <b className="text-primary truncate block font-mono font-extrabold text-base sm:text-lg mt-1" title={displayMatchedSegment}>
+                    {displayMatchedSegment && displayMatchedSegment !== "—"
+                      ? displayMatchedSegment
+                      : "Matching…"}
+                  </b>
+                </div>
+              </div>
+
+              {/* TERTIARY: GPS, Motion, Duration & Transit Pipeline Progress */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="p-2.5 rounded-lg bg-background/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">GPS Status</span>
                   <b
-                    className={`block font-extrabold text-base sm:text-lg mt-1 ${
+                    className={`block font-bold text-xs mt-0.5 ${
                       displayGpsStatus === "ACTIVE"
                         ? "text-emerald-600 dark:text-emerald-400"
                         : displayGpsStatus === "DENIED"
@@ -480,42 +516,6 @@ export function LiveTripStatus() {
                     }`}
                   >
                     {displayGpsStatus}
-                  </b>
-                </div>
-
-                {/* 2. Speed */}
-                <div className="p-3 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Speed</span>
-                  <b className="text-foreground block font-extrabold text-base sm:text-lg mt-1">
-                    {displaySpeed}
-                  </b>
-                </div>
-
-                {/* 3. Distance */}
-                <div className="p-3 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Distance</span>
-                  <b className="text-foreground block font-extrabold text-base sm:text-lg mt-1">
-                    {displayDistance}
-                  </b>
-                </div>
-
-                {/* 4. Observations */}
-                <div className="p-3 rounded-xl bg-muted/60 border border-border/50 flex flex-col justify-between">
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Observations</span>
-                  <b className="text-primary block font-extrabold text-base sm:text-lg mt-1">
-                    {displayObservations}
-                  </b>
-                </div>
-              </div>
-
-              {/* TERTIARY: Segment, Motion & Transit Progress */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="p-2.5 rounded-lg bg-background/60 border border-border/40">
-                  <span className="text-[10px] text-muted-foreground block font-medium">Current Segment</span>
-                  <b className="text-primary truncate block font-mono font-bold text-xs mt-0.5" title={displayMatchedSegment}>
-                    {displayMatchedSegment && displayMatchedSegment !== "—"
-                      ? `Road Segment (${displayMatchedSegment})`
-                      : "Matching corridor…"}
                   </b>
                 </div>
                 <div className="p-2.5 rounded-lg bg-background/60 border border-border/40">
@@ -531,7 +531,7 @@ export function LiveTripStatus() {
                   </b>
                 </div>
                 <div className="p-2.5 rounded-lg bg-background/60 border border-border/40">
-                  <span className="text-[10px] text-muted-foreground block font-medium">Duration</span>
+                  <span className="text-[10px] text-muted-foreground block font-medium">Trip Duration</span>
                   <b className="text-foreground block font-bold text-xs mt-0.5">
                     {formatDuration(currentTrip.duration_seconds)}
                   </b>

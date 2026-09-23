@@ -14,10 +14,7 @@ import { DataProvider, useRoadData } from "@/lib/roadsense-data";
 import { TripProvider } from "@/lib/trip-context";
 import { ModeProvider, useUserMode } from "@/lib/mode-context";
 import { MobileBottomNav } from "./mobile-bottom-nav";
-import { LiveTripStatus } from "./live-trip-status";
-import { TravellerStatusBar } from "./traveller-status-bar";
 import { ModeSwitcher } from "./mode-switcher";
-import { MlDetectionPanel } from "./ml-detection-panel";
 import { BeaconBrand } from "./beacon-brand";
 
 const nav = [
@@ -138,11 +135,11 @@ function ShellInner({ children }: { children: ReactNode }) {
 
                 {/* Desktop Header: [ Lighthouse Logo (36px) ] BEACON */}
                 <div className="hidden lg:flex items-center gap-3 min-w-0">
-                  <BeaconBrand size="md" subtitle="Fleet Sensing" />
+                  <BeaconBrand size="md" />
                   <div className="h-6 w-px bg-border/60 mx-1" />
                   <div className="min-w-0">
                     <h1 className="text-sm font-extrabold text-foreground truncate">
-                      Every participating bus becomes a moving beacon for road conditions.
+                      Road Intelligence
                     </h1>
                     <p className="text-[11px] text-muted-foreground truncate">
                       {isContributor
@@ -193,7 +190,7 @@ function ShellInner({ children }: { children: ReactNode }) {
             <div className="lg:hidden mt-2 pt-1.5 border-t border-border/40 flex items-center justify-between text-[10px] text-muted-foreground">
               <span className="truncate">
                 {isContributor
-                  ? "🚌 Contributor Mode · 12 recorded passes"
+                  ? "🚌 Contributor Mode · Real-time vehicle sensing"
                   : "🧭 Traveller Mode · 160 corridors"}
               </span>
               <span className="font-bold text-[#172A3A] dark:text-sky-400 tracking-wide uppercase shrink-0 ml-1">
@@ -202,8 +199,6 @@ function ShellInner({ children }: { children: ReactNode }) {
             </div>
           </header>
           <main className="content">
-            {isContributor ? <LiveTripStatus /> : <TravellerStatusBar />}
-            {isContributor && path === "/" && <MlDetectionPanel />}
             {children}
           </main>
         </div>

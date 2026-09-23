@@ -14,6 +14,7 @@ import {
   Hand,
   CheckCircle2,
   Trash2,
+  Radio,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTrip } from "@/lib/trip-context";
@@ -155,8 +156,12 @@ export function TripHistory() {
                           <b className="text-foreground">{trip.distance_km} km</b>
                         </span>
                         <span className="flex items-center gap-1">
-                          <Activity className="w-3.5 h-3.5 text-primary" />
-                          <b className="text-primary">{trip.event_count} events</b>
+                          <Radio className="w-3.5 h-3.5 text-primary" />
+                          <b className="text-primary">{trip.observations_count ?? trip.gps_points.length} obs</b>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Activity className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                          <b className="text-foreground">{trip.event_count} events</b>
                         </span>
                         <span className="flex items-center gap-1">
                           <Layers className="w-3.5 h-3.5" />

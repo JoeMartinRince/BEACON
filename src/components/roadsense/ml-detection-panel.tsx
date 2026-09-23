@@ -106,10 +106,10 @@ export function MlDetectionPanel() {
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-xs font-bold text-primary border border-primary/20 tracking-wide uppercase">
             <Cpu className="w-3.5 h-3.5" />
-            ML Event Detection
+            ROAD EVENT DETECTION
           </span>
           <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold text-muted-foreground border border-border/40 tracking-wider">
-            {p.modelVersion}
+            Random Forest • {p.modelVersion}
           </span>
         </div>
 
@@ -125,10 +125,10 @@ export function MlDetectionPanel() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h4 className="text-sm font-bold text-foreground">
-                Random Forest Road-Event Classifier
+                Road Hazard & Pothole Classifier
               </h4>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Evaluates 50-sample (5s @ 10 Hz) temporal windows across 34 kinematic & jerk features.
+                Automated classification of road surface anomalies from vehicle kinematics.
               </p>
             </div>
             <Button
@@ -144,6 +144,17 @@ export function MlDetectionPanel() {
           </div>
         ) : (
           <div className="space-y-3.5">
+            {/* Clear Demo / Synthetic provenance notice */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25">
+              <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-[10px] font-extrabold text-amber-700 dark:text-amber-300 border border-amber-500/30 uppercase tracking-wide flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                DEMO / SYNTHETIC DATA
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                Demo inference • Evaluated from synthetic sensor window
+              </span>
+            </div>
+
             {/* Detection result grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
               {/* Event Type */}
@@ -220,6 +231,37 @@ export function MlDetectionPanel() {
             </div>
           </div>
         )}
+
+        {/* Collapsible Model Details Accordion */}
+        <details className="text-xs text-muted-foreground rounded-xl border border-dashed border-border/60 bg-muted/30 p-2.5 group">
+          <summary className="cursor-pointer font-semibold text-xs text-foreground/80 flex items-center justify-between select-none">
+            <span className="flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-primary" />
+              Model details
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              34 features · 5s window · 50 samples · 10 Hz
+            </span>
+          </summary>
+          <div className="pt-2 mt-2 border-t border-border/40 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+            <div>
+              <span className="text-[10px] text-muted-foreground block">Feature Vector</span>
+              <b className="text-foreground">34 kinematic & jerk</b>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground block">Window Duration</span>
+              <b className="text-foreground">5-second temporal</b>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground block">Sample Count</span>
+              <b className="text-foreground">50 samples @ 10 Hz</b>
+            </div>
+            <div>
+              <span className="text-[10px] text-muted-foreground block">Model Version</span>
+              <b className="text-foreground">{p.modelVersion}</b>
+            </div>
+          </div>
+        </details>
 
         {/* Subtle footer */}
         <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-muted-foreground">

@@ -13,6 +13,10 @@ import { useUserMode } from "@/lib/mode-context";
 import { calculateNetworkCondition } from "@/lib/condition-engine";
 import { MiniBars, MiniDots, MiniRange } from "./charts";
 import { BeaconHero } from "./beacon-hero";
+import { ModeSwitcher } from "./mode-switcher";
+import { LiveTripStatus } from "./live-trip-status";
+import { TravellerStatusBar } from "./traveller-status-bar";
+import { MlDetectionPanel } from "./ml-detection-panel";
 
 const MapView = lazy(() => import("./leaflet-map"));
 
@@ -129,7 +133,33 @@ export function Dashboard() {
 
   return (
     <div className="space-y-4">
+      {/* A. Hero: Visually dominant, logo, wordmark, core brand idea, transparency notices */}
       <BeaconHero />
+
+      {/* B. Contributor / Traveller mode switcher with contextual guidance */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-card border border-border/70 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-bold text-foreground">Active Experience:</span>
+          <span className="text-xs text-muted-foreground">
+            {isTraveller
+              ? "Exploring road condition intelligence & corridor scores"
+              : "Vehicle sensing active — contributing live road observations"}
+          </span>
+        </div>
+        <ModeSwitcher className="self-start sm:self-auto" />
+      </div>
+
+      {/* C. Current Mode Experience */}
+      {isTraveller ? (
+        <TravellerStatusBar />
+      ) : (
+        <>
+          <LiveTripStatus />
+          <MlDetectionPanel />
+        </>
+      )}
+
+      {/* D. Secondary Information: Statistics, Segment Details, Route timeline, Map Overview */}
       <div className="dashboard-grid">
       {/* 6 & 7. Key Statistics - Responsive 2-column on mobile, prominent numbers */}
       <section className="kpi-grid">
