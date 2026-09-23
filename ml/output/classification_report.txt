@@ -1,0 +1,26 @@
+BEACON ML EVALUATION REPORT
+Model: beacon-event-rf-v1
+Test Samples: 1108
+
+               precision    recall  f1-score   support
+
+ BROKEN_PATCH     0.9512    0.9512    0.9512       164
+       NORMAL     1.0000    1.0000    1.0000       263
+      POTHOLE     0.9854    0.9541    0.9695       283
+    ROUGHNESS     0.9096    0.9553    0.9319       179
+SPEED_BREAKER     1.0000    1.0000    1.0000       219
+
+     accuracy                         0.9738      1108
+    macro avg     0.9692    0.9721    0.9705      1108
+ weighted avg     0.9744    0.9738    0.9740      1108
+
+
+Confusion Matrix (rows: true, cols: pred):
+Labels: BROKEN_PATCH, NORMAL, POTHOLE, ROUGHNESS, SPEED_BREAKER
+[[156   0   2   6   0]
+ [  0 263   0   0   0]
+ [  2   0 270  11   0]
+ [  6   0   2 171   0]
+ [  0   0   0   0 219]]
+
+Note: Evaluated on synthetic demonstration dataset.

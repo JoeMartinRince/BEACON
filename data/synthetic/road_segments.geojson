@@ -1,0 +1,3685 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.3,
+            9.965
+          ],
+          [
+            76.29938469721947,
+            9.964035153409531
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_001",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29938469721947,
+            9.964035153409531
+          ],
+          [
+            76.29854614546684,
+            9.9629543715799
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_002",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29854614546684,
+            9.9629543715799
+          ],
+          [
+            76.297893270994,
+            9.961491510850992
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_003",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.297893270994,
+            9.961491510850992
+          ],
+          [
+            76.29728579260916,
+            9.960186094234794
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_004",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29728579260916,
+            9.960186094234794
+          ],
+          [
+            76.29680181555091,
+            9.959140406120742
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_005",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29680181555091,
+            9.959140406120742
+          ],
+          [
+            76.29599605279293,
+            9.957801767564758
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_006",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29599605279293,
+            9.957801767564758
+          ],
+          [
+            76.29522598678773,
+            9.95654563983361
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_007",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29522598678773,
+            9.95654563983361
+          ],
+          [
+            76.2946761941472,
+            9.955754683114506
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_008",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2946761941472,
+            9.955754683114506
+          ],
+          [
+            76.29417606075378,
+            9.955100454439965
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_009",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29417606075378,
+            9.955100454439965
+          ],
+          [
+            76.29327093368897,
+            9.954148679189391
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_010",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29327093368897,
+            9.954148679189391
+          ],
+          [
+            76.29254819564812,
+            9.95335343265769
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_011",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29254819564812,
+            9.95335343265769
+          ],
+          [
+            76.29135343767678,
+            9.952379600615435
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_012",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29135343767678,
+            9.952379600615435
+          ],
+          [
+            76.29065795831423,
+            9.951749533919369
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_013",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29065795831423,
+            9.951749533919369
+          ],
+          [
+            76.29002422650149,
+            9.951246207618244
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_014",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.29002422650149,
+            9.951246207618244
+          ],
+          [
+            76.28891691330375,
+            9.950454028104659
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_015",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28891691330375,
+            9.950454028104659
+          ],
+          [
+            76.28740889113908,
+            9.949883840020362
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_016",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28740889113908,
+            9.949883840020362
+          ],
+          [
+            76.28641095628461,
+            9.949434105243908
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_017",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28641095628461,
+            9.949434105243908
+          ],
+          [
+            76.28552878030928,
+            9.949113126363091
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_018",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28552878030928,
+            9.949113126363091
+          ],
+          [
+            76.28441955139544,
+            9.948692157905532
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_019",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28441955139544,
+            9.948692157905532
+          ],
+          [
+            76.28320869849858,
+            9.948088572387185
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_020",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28320869849858,
+            9.948088572387185
+          ],
+          [
+            76.28181595694059,
+            9.94754430928609
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_021",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28181595694059,
+            9.94754430928609
+          ],
+          [
+            76.28090773050292,
+            9.947031172516226
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_022",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.28090773050292,
+            9.947031172516226
+          ],
+          [
+            76.2796928221752,
+            9.946208812276963
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_023",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 71.0,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2796928221752,
+            9.946208812276963
+          ],
+          [
+            76.27883889653867,
+            9.945648280496005
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_024",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 70.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27883889653867,
+            9.945648280496005
+          ],
+          [
+            76.27804356167576,
+            9.945239071890624
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_025",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 71.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27804356167576,
+            9.945239071890624
+          ],
+          [
+            76.27732238089084,
+            9.94494005631334
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_026",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 74.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27732238089084,
+            9.94494005631334
+          ],
+          [
+            76.2760578174242,
+            9.944466796504642
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_027",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2760578174242,
+            9.944466796504642
+          ],
+          [
+            76.27481217771674,
+            9.943729447930572
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_028",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 70.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27481217771674,
+            9.943729447930572
+          ],
+          [
+            76.2737634961104,
+            9.943024902916953
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_029",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 69.2,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2737634961104,
+            9.943024902916953
+          ],
+          [
+            76.27305727606927,
+            9.9425153573214
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_030",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27305727606927,
+            9.9425153573214
+          ],
+          [
+            76.27218081521482,
+            9.941730253983025
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_031",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27218081521482,
+            9.941730253983025
+          ],
+          [
+            76.27133593321764,
+            9.940582131499726
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_032",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27133593321764,
+            9.940582131499726
+          ],
+          [
+            76.27057859794047,
+            9.939594895257533
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_033",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 70.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.27057859794047,
+            9.939594895257533
+          ],
+          [
+            76.26988217280154,
+            9.938834479583704
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_034",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26988217280154,
+            9.938834479583704
+          ],
+          [
+            76.26914583804046,
+            9.937958153255066
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_035",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 69.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26914583804046,
+            9.937958153255066
+          ],
+          [
+            76.26833793479841,
+            9.937179367735261
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_036",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 68.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26833793479841,
+            9.937179367735261
+          ],
+          [
+            76.26775302909641,
+            9.936406108719073
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_037",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 68.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26775302909641,
+            9.936406108719073
+          ],
+          [
+            76.26675626688666,
+            9.936147664399606
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_038",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 74.0,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26675626688666,
+            9.936147664399606
+          ],
+          [
+            76.26551585717641,
+            9.93593411394338
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_039",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 70.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26551585717641,
+            9.93593411394338
+          ],
+          [
+            76.26417952631073,
+            9.935730238268874
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_040",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 70.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26417952631073,
+            9.935730238268874
+          ],
+          [
+            76.26272449381486,
+            9.935452433333712
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_041",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 71.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26272449381486,
+            9.935452433333712
+          ],
+          [
+            76.26195805827035,
+            9.935241603632873
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_042",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 69.2,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26195805827035,
+            9.935241603632873
+          ],
+          [
+            76.26062619759057,
+            9.934808361041453
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_043",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 69.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.26062619759057,
+            9.934808361041453
+          ],
+          [
+            76.2597409167937,
+            9.93457688196739
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_044",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 71.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2597409167937,
+            9.93457688196739
+          ],
+          [
+            76.25886279309941,
+            9.934348686922911
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_045",
+        "road_name": "NH_CORRIDOR_A",
+        "road_type": "HIGHWAY",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25886279309941,
+            9.934348686922911
+          ],
+          [
+            76.25772372906579,
+            9.9341172849688
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_046",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 71.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25772372906579,
+            9.9341172849688
+          ],
+          [
+            76.2567101335161,
+            9.933898816355317
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_047",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2567101335161,
+            9.933898816355317
+          ],
+          [
+            76.25564776489136,
+            9.933659132162793
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_048",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 67.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25564776489136,
+            9.933659132162793
+          ],
+          [
+            76.25483936714045,
+            9.93332062894006
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_049",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 66.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25483936714045,
+            9.93332062894006
+          ],
+          [
+            76.25348495559842,
+            9.93255002560643
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_050",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 65.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25348495559842,
+            9.93255002560643
+          ],
+          [
+            76.25267417889017,
+            9.931962309108096
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_051",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 71.0,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25267417889017,
+            9.931962309108096
+          ],
+          [
+            76.25138382580747,
+            9.931307547341762
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_052",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25138382580747,
+            9.931307547341762
+          ],
+          [
+            76.25030361578274,
+            9.93087565305946
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_053",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 66.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.25030361578274,
+            9.93087565305946
+          ],
+          [
+            76.24951544299552,
+            9.930537587544803
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_054",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 67.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24951544299552,
+            9.930537587544803
+          ],
+          [
+            76.24846176466701,
+            9.93003352795465
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_055",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24846176466701,
+            9.93003352795465
+          ],
+          [
+            76.24764105968904,
+            9.929402040229983
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_056",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24764105968904,
+            9.929402040229983
+          ],
+          [
+            76.24689235069832,
+            9.928859683678759
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_057",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 71.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24689235069832,
+            9.928859683678759
+          ],
+          [
+            76.24590444254682,
+            9.927835907224978
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_058",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 67.2,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24590444254682,
+            9.927835907224978
+          ],
+          [
+            76.24516717363088,
+            9.926965502727754
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_059",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 70.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24516717363088,
+            9.926965502727754
+          ],
+          [
+            76.24434281738922,
+            9.925997546842494
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_060",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 66.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24434281738922,
+            9.925997546842494
+          ],
+          [
+            76.24381624482828,
+            9.925341187839743
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_061",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 69.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24381624482828,
+            9.925341187839743
+          ],
+          [
+            76.24329887177407,
+            9.924724551953792
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_062",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 70.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24329887177407,
+            9.924724551953792
+          ],
+          [
+            76.24249621117747,
+            9.924039354387203
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_063",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 67.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24249621117747,
+            9.924039354387203
+          ],
+          [
+            76.24181789296722,
+            9.923509486205605
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_064",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 70.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24181789296722,
+            9.923509486205605
+          ],
+          [
+            76.24118462714068,
+            9.92284669382012
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_065",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 62.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24118462714068,
+            9.92284669382012
+          ],
+          [
+            76.24041827508006,
+            9.921836792506646
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_066",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24041827508006,
+            9.921836792506646
+          ],
+          [
+            76.23983046660089,
+            9.920707280297654
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_067",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 71.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23983046660089,
+            9.920707280297654
+          ],
+          [
+            76.23913630102675,
+            9.919279167104685
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_068",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 69.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23913630102675,
+            9.919279167104685
+          ],
+          [
+            76.23867522455703,
+            9.91791988180693
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_069",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23867522455703,
+            9.91791988180693
+          ],
+          [
+            76.23818136427667,
+            9.91684460750977
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_070",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 70.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23818136427667,
+            9.91684460750977
+          ],
+          [
+            76.23706259334176,
+            9.915732508810315
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_071",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 69.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23706259334176,
+            9.915732508810315
+          ],
+          [
+            76.23633505138537,
+            9.914809023616343
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_072",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23633505138537,
+            9.914809023616343
+          ],
+          [
+            76.23565584766482,
+            9.914002775677567
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_073",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23565584766482,
+            9.914002775677567
+          ],
+          [
+            76.23496329364184,
+            9.913090175131057
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_074",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 71.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23496329364184,
+            9.913090175131057
+          ],
+          [
+            76.23520208355683,
+            9.911638741951508
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_075",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23520208355683,
+            9.911638741951508
+          ],
+          [
+            76.23532865906634,
+            9.910763331084661
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_076",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 70.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23532865906634,
+            9.910763331084661
+          ],
+          [
+            76.23555909070592,
+            9.909936746953333
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_077",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23555909070592,
+            9.909936746953333
+          ],
+          [
+            76.23588709858575,
+            9.908985425129588
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_078",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 69.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23588709858575,
+            9.908985425129588
+          ],
+          [
+            76.23629351138868,
+            9.907658991172859
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_079",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23629351138868,
+            9.907658991172859
+          ],
+          [
+            76.23653145698461,
+            9.906835217559667
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_080",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23653145698461,
+            9.906835217559667
+          ],
+          [
+            76.23685518271054,
+            9.905928557800078
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_081",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 69.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23685518271054,
+            9.905928557800078
+          ],
+          [
+            76.23740894807327,
+            9.904816706658183
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_082",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23740894807327,
+            9.904816706658183
+          ],
+          [
+            76.23770034574488,
+            9.903371581874374
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_083",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23770034574488,
+            9.903371581874374
+          ],
+          [
+            76.23779862479853,
+            9.902340745519076
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_084",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23779862479853,
+            9.902340745519076
+          ],
+          [
+            76.23777788669531,
+            9.901327980916275
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_085",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23777788669531,
+            9.901327980916275
+          ],
+          [
+            76.23777685672314,
+            9.900344872885336
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_086",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23777685672314,
+            9.900344872885336
+          ],
+          [
+            76.23784932965395,
+            9.89944263620076
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_087",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 72.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23784932965395,
+            9.89944263620076
+          ],
+          [
+            76.238004043258,
+            9.89831675430022
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_088",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.238004043258,
+            9.89831675430022
+          ],
+          [
+            76.23844807741261,
+            9.8968545486143
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_089",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 70.2,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23844807741261,
+            9.8968545486143
+          ],
+          [
+            76.23859921785038,
+            9.895336355309977
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_090",
+        "road_name": "URBAN_CONNECTOR_B",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23859921785038,
+            9.895336355309977
+          ],
+          [
+            76.23873654592478,
+            9.894136243540254
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_091",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23873654592478,
+            9.894136243540254
+          ],
+          [
+            76.23866819312116,
+            9.892713840041118
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_092",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23866819312116,
+            9.892713840041118
+          ],
+          [
+            76.23867138273533,
+            9.891630184686313
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_093",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 71.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23867138273533,
+            9.891630184686313
+          ],
+          [
+            76.23860096748751,
+            9.890229454116136
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_094",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 68.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23860096748751,
+            9.890229454116136
+          ],
+          [
+            76.23848690924103,
+            9.888668698722679
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_095",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 70.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23848690924103,
+            9.888668698722679
+          ],
+          [
+            76.23857086072621,
+            9.887803339578111
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_096",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23857086072621,
+            9.887803339578111
+          ],
+          [
+            76.23846629655691,
+            9.886913902208292
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_097",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23846629655691,
+            9.886913902208292
+          ],
+          [
+            76.23837762359585,
+            9.885640385403784
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_098",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 70.2,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23837762359585,
+            9.885640385403784
+          ],
+          [
+            76.23844734421448,
+            9.884613128997211
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_099",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23844734421448,
+            9.884613128997211
+          ],
+          [
+            76.23842818962487,
+            9.883018532005766
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_100",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 72.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23842818962487,
+            9.883018532005766
+          ],
+          [
+            76.23841809483031,
+            9.882131224744716
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_101",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 65.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23841809483031,
+            9.882131224744716
+          ],
+          [
+            76.23836697436218,
+            9.88117191453073
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_102",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23836697436218,
+            9.88117191453073
+          ],
+          [
+            76.23828042011587,
+            9.879831238707407
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_103",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23828042011587,
+            9.879831238707407
+          ],
+          [
+            76.23850625827572,
+            9.878655088470687
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_104",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 71.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23850625827572,
+            9.878655088470687
+          ],
+          [
+            76.2388722152291,
+            9.87744682746004
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_105",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 71.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2388722152291,
+            9.87744682746004
+          ],
+          [
+            76.23944221804425,
+            9.876108429189896
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_106",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 70.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23944221804425,
+            9.876108429189896
+          ],
+          [
+            76.23984105127101,
+            9.874769097862123
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_107",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 64.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23984105127101,
+            9.874769097862123
+          ],
+          [
+            76.24008651693816,
+            9.87393322407703
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_108",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 69.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24008651693816,
+            9.87393322407703
+          ],
+          [
+            76.24033320772378,
+            9.87285620873374
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_109",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 65.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24033320772378,
+            9.87285620873374
+          ],
+          [
+            76.24064389148873,
+            9.871714684597249
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_110",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 69.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24064389148873,
+            9.871714684597249
+          ],
+          [
+            76.24095674926298,
+            9.870164158283652
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_111",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 70.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24095674926298,
+            9.870164158283652
+          ],
+          [
+            76.24052621660564,
+            9.869502831700384
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_112",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 67.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.24052621660564,
+            9.869502831700384
+          ],
+          [
+            76.2397777723254,
+            9.868424829481697
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_113",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 68.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2397777723254,
+            9.868424829481697
+          ],
+          [
+            76.23937331487446,
+            9.867635369863647
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_114",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 68.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23937331487446,
+            9.867635369863647
+          ],
+          [
+            76.23860625891848,
+            9.86623652158979
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_115",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 66.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23860625891848,
+            9.86623652158979
+          ],
+          [
+            76.2375556474808,
+            9.865067299942183
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_116",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 68.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2375556474808,
+            9.865067299942183
+          ],
+          [
+            76.23680422149914,
+            9.86416940956652
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_117",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 67.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23680422149914,
+            9.86416940956652
+          ],
+          [
+            76.23634612919307,
+            9.863533655646885
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_118",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 69.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23634612919307,
+            9.863533655646885
+          ],
+          [
+            76.23531105019174,
+            9.862470676574691
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_119",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 66.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23531105019174,
+            9.862470676574691
+          ],
+          [
+            76.23469272698571,
+            9.86172461331168
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_120",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23469272698571,
+            9.86172461331168
+          ],
+          [
+            76.23388981888013,
+            9.860715542880403
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_121",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 64.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23388981888013,
+            9.860715542880403
+          ],
+          [
+            76.23326833862166,
+            9.859820901983184
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_122",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 62.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23326833862166,
+            9.859820901983184
+          ],
+          [
+            76.23236646393161,
+            9.858842853329843
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_123",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 62.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23236646393161,
+            9.858842853329843
+          ],
+          [
+            76.23178258964322,
+            9.857844515602228
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_124",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 68.5,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23178258964322,
+            9.857844515602228
+          ],
+          [
+            76.23109059515821,
+            9.857159295115263
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_125",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 66.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23109059515821,
+            9.857159295115263
+          ],
+          [
+            76.23019383920428,
+            9.85599438176048
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_126",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.23019383920428,
+            9.85599438176048
+          ],
+          [
+            76.22949068895377,
+            9.855553269463096
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_127",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22949068895377,
+            9.855553269463096
+          ],
+          [
+            76.22875187925649,
+            9.8550423697211
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_128",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 71.0,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22875187925649,
+            9.8550423697211
+          ],
+          [
+            76.22778970917852,
+            9.854640697786557
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_129",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22778970917852,
+            9.854640697786557
+          ],
+          [
+            76.22635904503284,
+            9.853992965268926
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_130",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22635904503284,
+            9.853992965268926
+          ],
+          [
+            76.22540834515814,
+            9.853621414009327
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_131",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22540834515814,
+            9.853621414009327
+          ],
+          [
+            76.22459944332934,
+            9.853290099779883
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_132",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 71.4,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22459944332934,
+            9.853290099779883
+          ],
+          [
+            76.22384818454657,
+            9.852956818233343
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_133",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 69.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22384818454657,
+            9.852956818233343
+          ],
+          [
+            76.22308924668937,
+            9.852645324494706
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_134",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22308924668937,
+            9.852645324494706
+          ],
+          [
+            76.22179999565367,
+            9.852200125134368
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_135",
+        "road_name": "RESIDENTIAL_LINK_C",
+        "road_type": "RESIDENTIAL",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22179999565367,
+            9.852200125134368
+          ],
+          [
+            76.22080115015024,
+            9.8518760545869
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_136",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 71.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.22080115015024,
+            9.8518760545869
+          ],
+          [
+            76.21934044405293,
+            9.851412471658806
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_137",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 69.2,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21934044405293,
+            9.851412471658806
+          ],
+          [
+            76.21859103317172,
+            9.851100490994158
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_138",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21859103317172,
+            9.851100490994158
+          ],
+          [
+            76.21768180172967,
+            9.850709363686207
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_139",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 70.6,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21768180172967,
+            9.850709363686207
+          ],
+          [
+            76.21657224453111,
+            9.850465542849877
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_140",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21657224453111,
+            9.850465542849877
+          ],
+          [
+            76.21552573217059,
+            9.85013222277077
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_141",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 69.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21552573217059,
+            9.85013222277077
+          ],
+          [
+            76.21469553915699,
+            9.849896342371352
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_142",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21469553915699,
+            9.849896342371352
+          ],
+          [
+            76.21388211637668,
+            9.849787294922045
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_143",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 69.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21388211637668,
+            9.849787294922045
+          ],
+          [
+            76.21302283734985,
+            9.849722338806524
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_144",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 69.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21302283734985,
+            9.849722338806524
+          ],
+          [
+            76.21146530468775,
+            9.84977873258408
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_145",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 68.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21146530468775,
+            9.84977873258408
+          ],
+          [
+            76.21000117303151,
+            9.849635550366742
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_146",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 73.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.21000117303151,
+            9.849635550366742
+          ],
+          [
+            76.20867115786666,
+            9.84954799906415
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_147",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 68.7,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20867115786666,
+            9.84954799906415
+          ],
+          [
+            76.20778329961149,
+            9.849458101203364
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_148",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 71.3,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20778329961149,
+            9.849458101203364
+          ],
+          [
+            76.2068123078459,
+            9.850188707559282
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_149",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 69.1,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2068123078459,
+            9.850188707559282
+          ],
+          [
+            76.20601958562258,
+            9.85104612406042
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_150",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 69.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20601958562258,
+            9.85104612406042
+          ],
+          [
+            76.20509555887509,
+            9.851989238501012
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_151",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20509555887509,
+            9.851989238501012
+          ],
+          [
+            76.20449627268022,
+            9.85264691319697
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_152",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 70.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20449627268022,
+            9.85264691319697
+          ],
+          [
+            76.20357362976279,
+            9.853302192152572
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_153",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20357362976279,
+            9.853302192152572
+          ],
+          [
+            76.20283949121949,
+            9.854102061548613
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_154",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 68.9,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20283949121949,
+            9.854102061548613
+          ],
+          [
+            76.20221538949988,
+            9.854946042371319
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_155",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20221538949988,
+            9.854946042371319
+          ],
+          [
+            76.2014000786279,
+            9.856031413867257
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_156",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.2014000786279,
+            9.856031413867257
+          ],
+          [
+            76.20039733324302,
+            9.857258141463788
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_157",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 70.8,
+        "condition_class": "MODERATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.20039733324302,
+            9.857258141463788
+          ],
+          [
+            76.19971708098421,
+            9.85822361074034
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_158",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.19971708098421,
+            9.85822361074034
+          ],
+          [
+            76.19916321364985,
+            9.859316864108942
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_159",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.19916321364985,
+            9.859316864108942
+          ],
+          [
+            76.19883138284592,
+            9.86059776556084
+          ]
+        ]
+      },
+      "properties": {
+        "segment_id": "SEG_160",
+        "road_name": "JUNCTION_LOOP_D",
+        "road_type": "URBAN",
+        "condition_score": 92.0,
+        "condition_class": "GOOD"
+      }
+    }
+  ]
+}

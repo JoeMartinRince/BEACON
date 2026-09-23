@@ -1,0 +1,34 @@
+{
+  "dataset_name": "RoadSense Synthetic Kerala-like Demonstration Dataset",
+  "seed": 42,
+  "sampling_rate_hz": 10,
+  "gps_rate_hz": "~1-5 (represented by noisy positions at sensor cadence)",
+  "synthetic_only": true,
+  "geographic_note": "Fictional corridor around the Kochi/Ernakulam region; coordinates are generated for demonstration and do not represent measured road conditions.",
+  "records": {
+    "sensor_records": 1426279,
+    "buses": 10,
+    "passes": 60,
+    "road_segments": 160,
+    "events_ground_truth": 4323,
+    "suppressed_candidates": 74
+  },
+  "event_counts": {
+    "POTHOLE": 1428,
+    "SPEED_BREAKER": 1105,
+    "BROKEN_PATCH": 820,
+    "ROUGHNESS": 970
+  },
+  "total_simulated_distance_km": 1238.35,
+  "files": [
+    "sensor_data.csv",
+    "events_ground_truth.csv",
+    "bus_passes.csv",
+    "road_segments.csv",
+    "segment_summary.csv",
+    "suppressed_events.csv",
+    "road_segments.geojson",
+    "dataset_metadata.json",
+    "README.md"
+  ]
+}

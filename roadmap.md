@@ -1,0 +1,5 @@
+- [x] Build shared shell, design system, responsive navigation, disclaimer, theme and toolbar
+- [x] Add sample-data parser, shared state and upload overrides
+- [x] Build Dashboard and all seven supporting pages
+- [x] Add interactive Leaflet map, Recharts charts, tables, filtering and exports
+- [x] Add unique page metadata and verify desktop/mobile workflows

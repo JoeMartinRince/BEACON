@@ -1,0 +1,2 @@
+import { createFileRoute } from "@tanstack/react-router";import { Dashboard } from "@/components/roadsense/dashboard";
+export const Route=createFileRoute("/")({head:()=>({meta:[{title:"Dashboard — RoadSense Kerala"},{name:"description",content:"Fleet road-condition sensing overview."},{property:"og:title",content:"RoadSense Kerala Dashboard"},{property:"og:description",content:"Fleet sensing overview with corridor condition indicators."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:Dashboard});
