@@ -104,10 +104,12 @@ export function LiveTripStatus() {
   const [manualDialogOpen, setManualDialogOpen] = useState(false);
   const [endDialogOpen, setEndDialogOpen] = useState(false);
 
-  // Formatted live telemetry metrics (Section 14 & 15: "—" when unavailable, no fake defaults)
+  // Formatted live telemetry metrics (0 km/h when stationary, "—" when unavailable, no fake defaults)
   const displaySpeed = isSimulating
-    ? (gpsSpeedKmh !== null ? `${gpsSpeedKmh} km/h` : "—")
-    : (telemetry.speedKmh !== null ? `${telemetry.speedKmh.toFixed(1)} km/h` : "—");
+    ? (gpsSpeedKmh !== null ? (gpsSpeedKmh === 0 ? "0 km/h" : `${gpsSpeedKmh} km/h`) : "—")
+    : (telemetry.speedKmh !== null
+        ? (telemetry.speedKmh === 0 ? "0 km/h" : `${telemetry.speedKmh.toFixed(1)} km/h`)
+        : "—");
 
   const displayDistance = isSimulating
     ? (currentTrip ? `${currentTrip.distance_km} km` : "0.00 km")
@@ -777,6 +779,82 @@ export function LiveTripStatus() {
             </summary>
 
             <div className="pt-2.5 border-t border-primary/15 mt-2 space-y-2">
+              {/* GPS Speed & Movement Validation Section (Section 12 verification) */}
+              <div className="p-2.5 rounded-lg bg-background/80 border border-primary/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-sans font-bold text-[11px] text-foreground flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${
+                      telemetry.motionState === "MOVING"
+                        ? "bg-emerald-500 animate-pulse"
+                        : telemetry.motionState === "GPS_UNCERTAIN"
+                          ? "bg-amber-500"
+                          : "bg-blue-500"
+                    }`} />
+                    GPS Speed & Movement Validation
+                  </span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    telemetry.motionState === "MOVING"
+                      ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                      : telemetry.motionState === "GPS_UNCERTAIN"
+                        ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
+                        : "bg-blue-500/10 text-blue-600 border border-blue-500/30"
+                  }`}>
+                    STATE: {telemetry.motionState ?? (telemetry.speedKmh && telemetry.speedKmh > 0 ? "MOVING" : "STATIONARY")}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5 text-muted-foreground text-[10px]">
+                  <div>
+                    Browser GPS speed:{" "}
+                    <b className="text-foreground">
+                      {telemetry.browserSpeedKmh !== null && telemetry.browserSpeedKmh !== undefined
+                        ? `${telemetry.browserSpeedKmh.toFixed(1)} km/h`
+                        : "null"}
+                    </b>
+                  </div>
+                  <div>
+                    Calculated GPS speed:{" "}
+                    <b className="text-foreground">
+                      {telemetry.calculatedSpeedKmh !== null && telemetry.calculatedSpeedKmh !== undefined
+                        ? `${telemetry.calculatedSpeedKmh.toFixed(1)} km/h`
+                        : "—"}
+                    </b>
+                  </div>
+                  <div>
+                    Validated speed:{" "}
+                    <b className="text-foreground font-bold">
+                      {telemetry.validatedSpeedKmh !== null && telemetry.validatedSpeedKmh !== undefined
+                        ? `${telemetry.validatedSpeedKmh.toFixed(1)} km/h`
+                        : telemetry.speedKmh !== null
+                          ? `${telemetry.speedKmh.toFixed(1)} km/h`
+                          : "—"}
+                    </b>
+                  </div>
+                  <div>
+                    GPS accuracy:{" "}
+                    <b className="text-foreground">
+                      {telemetry.accuracyMeters !== null
+                        ? `±${telemetry.accuracyMeters.toFixed(1)} m`
+                        : "—"}
+                    </b>
+                  </div>
+                  <div>
+                    Distance between fixes:{" "}
+                    <b className="text-foreground">
+                      {telemetry.lastStepDistanceMeters !== null && telemetry.lastStepDistanceMeters !== undefined
+                        ? `${telemetry.lastStepDistanceMeters.toFixed(2)} m`
+                        : "—"}
+                    </b>
+                  </div>
+                  <div>
+                    Accumulated distance:{" "}
+                    <b className="text-foreground">
+                      {telemetry.distanceMeters.toFixed(1)} m ({(telemetry.distanceMeters / 1000).toFixed(3)} km)
+                    </b>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5 text-muted-foreground">
                 <div>
                   GPS permission:{" "}
@@ -816,38 +894,6 @@ export function LiveTripStatus() {
                   longitude:{" "}
                   <b className="text-foreground">
                     {telemetry.longitude !== null ? telemetry.longitude.toFixed(6) : "—"}
-                  </b>
-                </div>
-                <div>
-                  accuracy:{" "}
-                  <b className="text-foreground">
-                    {telemetry.accuracyMeters !== null
-                      ? `±${telemetry.accuracyMeters.toFixed(1)} m`
-                      : "—"}
-                  </b>
-                </div>
-                <div>
-                  browser speed:{" "}
-                  <b className="text-foreground">
-                    {telemetry.browserSpeedKmh !== null && telemetry.browserSpeedKmh !== undefined
-                      ? `${telemetry.browserSpeedKmh.toFixed(1)} km/h`
-                      : "null"}
-                  </b>
-                </div>
-                <div>
-                  calculated speed:{" "}
-                  <b className="text-foreground">
-                    {telemetry.calculatedSpeedKmh !== null &&
-                    telemetry.calculatedSpeedKmh !== undefined
-                      ? `${telemetry.calculatedSpeedKmh.toFixed(1)} km/h`
-                      : "—"}
-                  </b>
-                </div>
-                <div>
-                  distance:{" "}
-                  <b className="text-foreground">
-                    {telemetry.distanceMeters.toFixed(1)} m (
-                    {(telemetry.distanceMeters / 1000).toFixed(3)} km)
                   </b>
                 </div>
                 <div>

@@ -21,7 +21,9 @@
     "conditions:aggregate": "bun run scripts/aggregateConditions.ts",
     "conditions:aggregate:dry": "bun run scripts/aggregateConditions.ts --dry-run",
     "conditions:verify": "bun run scripts/verifyConditions.ts",
-    "trips:test": "bun test src/lib/__tests__/",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "trips:test": "vitest run",
     "trips:verify": "bun run scripts/verifyTrips.ts",
     "e2e:verify": "bun run scripts/verifyEndToEnd.ts"
   },
@@ -104,6 +106,7 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "8.1.5"
+    "vite": "8.1.5",
+    "vitest": "^5.0.1"
   }
 }

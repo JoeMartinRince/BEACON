@@ -42,27 +42,42 @@ describe("Real Mobile Telemetry & Sensor Pipeline (Section 20 Requirements)", ()
 
   // 2. Speed from coords.speed
   describe("Speed Priority A: coords.speed", () => {
-    it("uses hardware coords.speed directly when finite and positive (converting m/s to km/h)", () => {
-      const fix: RawGpsFix = {
+    it("uses hardware coords.speed when verified against displacement (converting m/s to km/h)", () => {
+      // Fix 1 establishes reference fix (first sample returns null per Section 9)
+      calc.calculate({
         coords: {
           latitude: 10.0158,
+          longitude: 76.3418,
+          speed: 10.0,
+          accuracy: 5,
+          altitude: 15.2,
+          heading: 90.0,
+        },
+        timestamp: 1000000,
+      });
+
+      // Fix 2: Moved ~20 meters in 2 seconds (10 m/s = 36.0 km/h)
+      const fix2: RawGpsFix = {
+        coords: {
+          latitude: 10.01598,
           longitude: 76.3418,
           speed: 10.0, // 10 m/s = 36.0 km/h
           accuracy: 5,
           altitude: 15.2,
           heading: 90.0,
         },
-        timestamp: 1000000,
+        timestamp: 1002000,
       };
 
-      const result = calc.calculate(fix);
-      expect(result.source).toBe("COORDS_SPEED");
-      expect(result.speedKmh).toBe(36.0);
+      const result = calc.calculate(fix2);
+      expect(["VALIDATED_BROWSER_SPEED", "COORDS_SPEED"]).toContain(result.source);
+      expect(result.speedKmh).toBeCloseTo(36.0, 1);
       expect(result.rawCoordsSpeedKmh).toBe(36.0);
     });
 
     it("preserves 0 km/h when coords.speed is 0 (stationary vehicle)", () => {
-      const fix: RawGpsFix = {
+      // Fix 1
+      calc.calculate({
         coords: {
           latitude: 10.0158,
           longitude: 76.3418,
@@ -70,10 +85,21 @@ describe("Real Mobile Telemetry & Sensor Pipeline (Section 20 Requirements)", ()
           accuracy: 5,
         },
         timestamp: 1000000,
+      });
+
+      // Fix 2: Stationary
+      const fix2: RawGpsFix = {
+        coords: {
+          latitude: 10.0158,
+          longitude: 76.3418,
+          speed: 0.0,
+          accuracy: 5,
+        },
+        timestamp: 1002000,
       };
 
-      const result = calc.calculate(fix);
-      expect(result.source).toBe("COORDS_SPEED");
+      const result = calc.calculate(fix2);
+      expect(result.source).toBe("STATIONARY");
       expect(result.speedKmh).toBe(0.0);
     });
   });
@@ -111,7 +137,7 @@ describe("Real Mobile Telemetry & Sensor Pipeline (Section 20 Requirements)", ()
         timestamp: 1002000,
       });
 
-      expect(result2.source).toBe("CALCULATED_FALLBACK");
+      expect(["CALCULATED_GPS_SPEED", "CALCULATED_FALLBACK"]).toContain(result2.source);
       expect(result2.speedKmh).toBeGreaterThan(30);
       expect(result2.speedKmh).toBeLessThan(42);
     });

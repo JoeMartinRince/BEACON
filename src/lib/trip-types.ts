@@ -28,7 +28,7 @@ export interface TripGPSPoint {
   /** Data provenance */
   source?: EventSourceType | undefined;
   /** Provenance of the reported speed */
-  speed_source?: "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
+  speed_source?: "VALIDATED_BROWSER_SPEED" | "CALCULATED_GPS_SPEED" | "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
   /** Raw coords.speed converted to km/h if available */
   raw_coords_speed_kmh?: number | null | undefined;
   /** Calculated fallback speed from consecutive fixes (km/h) */
@@ -138,7 +138,7 @@ export interface LiveTripMetrics {
   observation_count: number;
 }
 
-export type { GpsSpeedDiagnostics } from "./gps-speed-calculator";
+export type { GpsSpeedDiagnostics, GpsMotionState, GpsSpeedSource, GpsSpeedStatus } from "./gps-speed-calculator";
 export type { FeatureReadinessReport, SynchronizedSensorSample } from "./live-feature-pipeline";
 
 export interface LiveTelemetry {
@@ -148,7 +148,10 @@ export interface LiveTelemetry {
   speedKmh: number | null;
   browserSpeedKmh?: number | null | undefined;
   calculatedSpeedKmh?: number | null | undefined;
-  speedSource?: "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
+  validatedSpeedKmh?: number | null | undefined;
+  motionState?: "MOVING" | "STATIONARY" | "GPS_UNCERTAIN" | undefined;
+  lastStepDistanceMeters?: number | null | undefined;
+  speedSource?: "VALIDATED_BROWSER_SPEED" | "CALCULATED_GPS_SPEED" | "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
   distanceMeters: number;
   headingDegrees: number | null;
   altitudeMeters: number | null;
