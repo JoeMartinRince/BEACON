@@ -85,6 +85,8 @@ export function LiveTripStatus() {
     isWeakGps,
     gpsSpeedKmh,
     gpsDiagnostics,
+    telemetry,
+    featureReadiness,
     simulateTrip,
     isSimulating,
     isPaused,
@@ -101,6 +103,51 @@ export function LiveTripStatus() {
 
   const [manualDialogOpen, setManualDialogOpen] = useState(false);
   const [endDialogOpen, setEndDialogOpen] = useState(false);
+
+  // Formatted live telemetry metrics (Section 14 & 15: "—" when unavailable, no fake defaults)
+  const displaySpeed = isSimulating
+    ? (gpsSpeedKmh !== null ? `${gpsSpeedKmh} km/h` : "—")
+    : (telemetry.speedKmh !== null ? `${telemetry.speedKmh.toFixed(1)} km/h` : "—");
+
+  const displayDistance = isSimulating
+    ? (currentTrip ? `${currentTrip.distance_km} km` : "0.00 km")
+    : (telemetry.distanceMeters >= 1000
+        ? `${(telemetry.distanceMeters / 1000).toFixed(2)} km`
+        : telemetry.distanceMeters > 0
+          ? `${Math.round(telemetry.distanceMeters)} m`
+          : "0 m");
+
+  const displayAccuracy = telemetry.accuracyMeters !== null
+    ? `±${Math.round(telemetry.accuracyMeters)} m`
+    : "—";
+
+  const displayHeading = telemetry.headingDegrees !== null
+    ? `${Math.round(telemetry.headingDegrees)}°`
+    : "—";
+
+  const displayAltitude = telemetry.altitudeMeters !== null
+    ? `${Math.round(telemetry.altitudeMeters)} m`
+    : "—";
+
+  const displayGpsStatus = isSimulating
+    ? "ACTIVE"
+    : telemetry.gpsStatus;
+
+  const displayMotionStatus = (telemetry.accelerometerAvailable || telemetry.gyroscopeAvailable)
+    ? "ACTIVE"
+    : "UNAVAILABLE";
+
+  const displayMatchedSegment = isSimulating
+    ? (currentTrip?.affected_segments?.[0]?.segment_id ?? "SEG_036")
+    : (telemetry.matchedSegmentId ?? "—");
+
+  const displayObservations = isSimulating
+    ? ((currentTrip?.observations_count ?? 1284).toLocaleString())
+    : (Math.max(telemetry.gpsSampleCount + telemetry.motionSampleCount, currentTrip?.observations_count ?? 0).toLocaleString());
+
+  const displayGpsSamples = isSimulating
+    ? (currentTrip?.gps_points.length ?? 48)
+    : telemetry.gpsSampleCount;
 
   // Derive pill variants from sensor status
   const locationVariant =
@@ -267,6 +314,16 @@ export function LiveTripStatus() {
         {/* Informational Guidance Banners for Sensors */}
         {!isSimulating && (
           <div className="pt-2 space-y-2">
+            {/* Mobile HTTPS Insecure Context Warning (Section 16 requirement) */}
+            {!telemetry.isSecureContext && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200">
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>
+                  <b>HTTPS Required for Mobile Sensors:</b> Geolocation and DeviceMotion access require an HTTPS connection on mobile devices.
+                </span>
+              </div>
+            )}
+
             {/* GPS Permission Denied Banner */}
             {sensorStatus.location === "PERMISSION_DENIED" && (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-900 dark:text-amber-200">
@@ -401,73 +458,133 @@ export function LiveTripStatus() {
                 <span className="text-muted-foreground text-[11px]">
                   Speed:{" "}
                   <b className="text-foreground font-extrabold">
-                    {gpsSpeedKmh !== null ? `${gpsSpeedKmh} km/h` : "-- km/h"}
+                    {displaySpeed}
                   </b>
                 </span>
               </div>
 
-              {/* Trip stats grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+              {/* 10 Real-time Telemetry Metrics Grid (Section 14) */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                {/* 1. GPS */}
                 <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
-                  <span className="text-[10px] text-muted-foreground block font-medium">Start</span>
+                  <span className="text-[10px] text-muted-foreground block font-medium">GPS</span>
                   <b
-                    className="text-foreground truncate block font-bold text-xs mt-0.5"
-                    title={currentTrip.start_location_name}
+                    className={`block font-bold text-xs mt-0.5 ${
+                      displayGpsStatus === "ACTIVE"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : displayGpsStatus === "DENIED"
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-amber-600 dark:text-amber-400"
+                    }`}
                   >
-                    {currentTrip.start_location_name || "Kakkanad"}
+                    {displayGpsStatus}
                   </b>
                 </div>
 
+                {/* 2. Speed */}
                 <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
-                  <span className="text-[10px] text-muted-foreground block font-medium">
-                    Current Location
-                  </span>
+                  <span className="text-[10px] text-muted-foreground block font-medium">Speed</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displaySpeed}
+                  </b>
+                </div>
+
+                {/* 3. Distance */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Distance</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displayDistance}
+                  </b>
+                </div>
+
+                {/* 4. Accuracy */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Accuracy</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displayAccuracy}
+                  </b>
+                </div>
+
+                {/* 5. Heading */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Heading</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displayHeading}
+                  </b>
+                </div>
+
+                {/* 6. Altitude */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Altitude</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displayAltitude}
+                  </b>
+                </div>
+
+                {/* 7. Observations */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Observations</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displayObservations}
+                  </b>
+                </div>
+
+                {/* 8. GPS Samples */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">GPS Samples</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {displayGpsSamples}
+                  </b>
+                </div>
+
+                {/* 9. Motion */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Motion</span>
                   <b
-                    className="text-primary truncate block font-bold text-xs mt-0.5"
-                    title={currentTrip.current_location_name}
+                    className={`block font-bold text-xs mt-0.5 ${
+                      displayMotionStatus === "ACTIVE"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-muted-foreground"
+                    }`}
                   >
+                    {displayMotionStatus}
+                  </b>
+                </div>
+
+                {/* 10. Matched Segment */}
+                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Matched Segment</span>
+                  <b className="text-primary truncate block font-mono font-bold text-xs mt-0.5" title={displayMatchedSegment}>
+                    {displayMatchedSegment}
+                  </b>
+                </div>
+              </div>
+
+              {/* Transit Trip Progress Subgrid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="p-2 rounded-lg bg-background/50 border border-border/30">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Start</span>
+                  <b className="text-foreground truncate block font-bold text-xs mt-0.5">
+                    {currentTrip.start_location_name || "Transit Origin"}
+                  </b>
+                </div>
+                <div className="p-2 rounded-lg bg-background/50 border border-border/30">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Location</span>
+                  <b className="text-primary truncate block font-bold text-xs mt-0.5">
                     {currentTrip.current_location_name || "En route"}
                   </b>
                 </div>
-
-                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40 flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block font-medium">Duration</span>
-                    <b className="text-foreground font-bold text-xs mt-0.5">
-                      {formatDuration(currentTrip.duration_seconds)}
-                    </b>
-                  </div>
+                <div className="p-2 rounded-lg bg-background/50 border border-border/30">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Duration</span>
+                  <b className="text-foreground block font-bold text-xs mt-0.5">
+                    {formatDuration(currentTrip.duration_seconds)}
+                  </b>
                 </div>
-
-                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40 flex items-center gap-2">
-                  <Gauge className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block font-medium">Distance</span>
-                    <b className="text-foreground font-bold text-xs mt-0.5">
-                      {currentTrip.distance_km} km
-                    </b>
-                  </div>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40 flex items-center gap-2">
-                  <Layers className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block font-medium">Observations</span>
-                    <b className="text-foreground font-bold text-xs mt-0.5">
-                      {(currentTrip.observations_count ?? currentTrip.gps_points.length).toLocaleString()}
-                    </b>
-                  </div>
-                </div>
-
-                <div className="col-span-2 sm:col-span-1 p-2.5 rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-2">
-                  <Activity className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block font-medium">Events</span>
-                    <b className="text-primary font-bold text-xs mt-0.5">
-                      {currentTrip.event_count} detected
-                    </b>
-                  </div>
+                <div className="p-2 rounded-lg bg-background/50 border border-border/30">
+                  <span className="text-[10px] text-muted-foreground block font-medium">Pipeline Status</span>
+                  <b className="text-emerald-600 dark:text-emerald-400 block font-bold text-xs mt-0.5">
+                    {isSimulating ? `${currentTrip.event_count} demo hazards` : "Live sensor collection active"}
+                  </b>
                 </div>
               </div>
 
@@ -668,67 +785,196 @@ export function LiveTripStatus() {
             </div>
           )}
 
-          {/* Dev-Mode Diagnostics Panel (Requirement 9: dev mode only, hidden in production build) */}
-          {import.meta.env.DEV && gpsDiagnostics && (
-            <div className="mt-3 p-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-[11px] font-mono space-y-1.5">
-              <div className="flex items-center justify-between font-sans text-xs font-bold text-primary">
-                <span className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5" />
-                  GPS & Speed Diagnostics (Dev Only)
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-primary/15 text-primary">
-                  {gpsDiagnostics.speedSource}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1 pt-1 text-muted-foreground">
+          {/* Section 15: LIVE SENSOR DIAGNOSTICS EXPANDABLE ACCORDION (Dev & Mobile Diagnostic) */}
+          <details className="mt-3 group rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3 text-[11px] font-mono">
+            <summary className="cursor-pointer font-sans font-bold text-xs text-primary flex items-center justify-between select-none">
+              <span className="flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5" />
+                LIVE SENSOR DIAGNOSTICS
+              </span>
+              <span className="text-[10px] font-mono text-muted-foreground group-open:rotate-90 transition-transform">
+                ▶
+              </span>
+            </summary>
+
+            <div className="pt-2.5 border-t border-primary/15 mt-2 space-y-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5 text-muted-foreground">
                 <div>
-                  GPS Available:{" "}
-                  <b className="text-foreground">{gpsDiagnostics.gpsAvailable ? "YES" : "NO"}</b>
+                  GPS permission:{" "}
+                  <b className="text-foreground">{telemetry.gpsPermission ?? "PROMPT"}</b>
                 </div>
                 <div>
-                  coords.speed:{" "}
+                  GPS availability:{" "}
+                  <b
+                    className={
+                      telemetry.gpsStatus === "ACTIVE"
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "text-amber-600 font-bold"
+                    }
+                  >
+                    {telemetry.gpsStatus === "ACTIVE" ? "YES" : "NO"}
+                  </b>
+                </div>
+                <div>
+                  GPS sample count:{" "}
+                  <b className="text-foreground">{telemetry.gpsSampleCount}</b>
+                </div>
+                <div>
+                  last GPS update:{" "}
                   <b className="text-foreground">
-                    {gpsDiagnostics.coordsSpeedRaw !== null
-                      ? `${gpsDiagnostics.coordsSpeedRaw} m/s (${gpsDiagnostics.coordsSpeedKmh} km/h)`
+                    {telemetry.lastGpsUpdate
+                      ? new Date(telemetry.lastGpsUpdate).toLocaleTimeString()
+                      : "—"}
+                  </b>
+                </div>
+                <div>
+                  latitude:{" "}
+                  <b className="text-foreground">
+                    {telemetry.latitude !== null ? telemetry.latitude.toFixed(6) : "—"}
+                  </b>
+                </div>
+                <div>
+                  longitude:{" "}
+                  <b className="text-foreground">
+                    {telemetry.longitude !== null ? telemetry.longitude.toFixed(6) : "—"}
+                  </b>
+                </div>
+                <div>
+                  accuracy:{" "}
+                  <b className="text-foreground">
+                    {telemetry.accuracyMeters !== null
+                      ? `±${telemetry.accuracyMeters.toFixed(1)} m`
+                      : "—"}
+                  </b>
+                </div>
+                <div>
+                  browser speed:{" "}
+                  <b className="text-foreground">
+                    {telemetry.browserSpeedKmh !== null && telemetry.browserSpeedKmh !== undefined
+                      ? `${telemetry.browserSpeedKmh.toFixed(1)} km/h`
                       : "null"}
                   </b>
                 </div>
                 <div>
-                  Calculated Fallback:{" "}
+                  calculated speed:{" "}
                   <b className="text-foreground">
-                    {gpsDiagnostics.calculatedFallbackSpeedKmh !== null
-                      ? `${gpsDiagnostics.calculatedFallbackSpeedKmh} km/h`
-                      : "N/A"}
+                    {telemetry.calculatedSpeedKmh !== null &&
+                    telemetry.calculatedSpeedKmh !== undefined
+                      ? `${telemetry.calculatedSpeedKmh.toFixed(1)} km/h`
+                      : "—"}
                   </b>
                 </div>
                 <div>
-                  Reported Speed:{" "}
+                  distance:{" "}
                   <b className="text-foreground">
-                    {gpsDiagnostics.currentSpeedKmh !== null
-                      ? `${gpsDiagnostics.currentSpeedKmh} km/h`
-                      : "unavailable"}
+                    {telemetry.distanceMeters.toFixed(1)} m (
+                    {(telemetry.distanceMeters / 1000).toFixed(3)} km)
                   </b>
                 </div>
                 <div>
-                  GPS Accuracy:{" "}
-                  <b className="text-foreground">±{gpsDiagnostics.gpsAccuracyMeters} m</b>
+                  heading:{" "}
+                  <b className="text-foreground">
+                    {telemetry.headingDegrees !== null
+                      ? `${telemetry.headingDegrees.toFixed(1)}°`
+                      : "—"}
+                  </b>
                 </div>
                 <div>
-                  GPS Samples:{" "}
-                  <b className="text-foreground">{gpsDiagnostics.samplesReceivedCount}</b>
+                  accelerometer availability:{" "}
+                  <b
+                    className={
+                      telemetry.accelerometerAvailable
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "text-foreground"
+                    }
+                  >
+                    {telemetry.accelerometerAvailable ? "YES" : "NO"}
+                  </b>
                 </div>
-                <div className="col-span-2 sm:col-span-3 text-[10px] text-muted-foreground/80">
-                  Fix Time: {new Date(gpsDiagnostics.timestamp).toLocaleTimeString()} ({gpsDiagnostics.lastCalculationStatus})
+                <div>
+                  accelerometer sample count:{" "}
+                  <b className="text-foreground">{telemetry.motionSampleCount}</b>
+                </div>
+                <div>
+                  gyroscope availability:{" "}
+                  <b
+                    className={
+                      telemetry.gyroscopeAvailable
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "text-foreground"
+                    }
+                  >
+                    {telemetry.gyroscopeAvailable ? "YES" : "NO"}
+                  </b>
+                </div>
+                <div>
+                  motion sample count:{" "}
+                  <b className="text-foreground">{telemetry.motionSampleCount}</b>
+                </div>
+                <div>
+                  online/offline:{" "}
+                  <b
+                    className={
+                      telemetry.isOnline
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "text-amber-600 font-bold"
+                    }
+                  >
+                    {telemetry.isOnline ? "ONLINE" : "OFFLINE"}
+                  </b>
+                </div>
+                <div className="col-span-2">
+                  secure context:{" "}
+                  <b
+                    className={
+                      telemetry.isSecureContext
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
+                        : "text-red-500 font-bold"
+                    }
+                  >
+                    {telemetry.isSecureContext ? "YES (HTTPS/localhost)" : "NO (Insecure HTTP)"}
+                  </b>
+                </div>
+              </div>
+
+              {/* 34 Feature Pipeline Readiness Diagnostics */}
+              <div className="p-2 rounded-lg bg-background/60 border border-border/40 space-y-1 text-[10px]">
+                <div className="flex items-center justify-between font-bold">
+                  <span className="text-foreground">34-Feature Rolling Window (5.0s / 10Hz):</span>
+                  <span
+                    className={
+                      featureReadiness?.readyForMl
+                        ? "text-emerald-600 font-extrabold"
+                        : "text-amber-600"
+                    }
+                  >
+                    {featureReadiness?.readyForMl
+                      ? "READY FOR INFERENCE (34/34 features)"
+                      : `ACCUMULATING (${featureReadiness?.featuresAvailable.length ?? 0}/34 features)`}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center justify-between text-muted-foreground">
+                  <span>
+                    Window:{" "}
+                    {featureReadiness
+                      ? `${featureReadiness.windowDurationSeconds.toFixed(1)}s`
+                      : "0.0s"}{" "}
+                    / 5.0s
+                  </span>
+                  <span>Sensor samples in window: {featureReadiness?.sampleCount ?? 0} / 50</span>
+                  <span>GPS samples total: {telemetry.gpsSampleCount}</span>
                 </div>
               </div>
             </div>
-          )}
+          </details>
 
           {/* Bottom attribution footer */}
           <div className="mt-2.5 pt-2.5 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-muted-foreground">
             <span>Your bus journey contributes road-condition intelligence during daily transit.</span>
             <span className="font-medium text-muted-foreground/80">
-              Demo data · Synthetic KSRTC-style observations
+              {isSimulating
+                ? "Demo data · Synthetic KSRTC-style observations"
+                : "Live Contributor sensing · Real mobile observations"}
             </span>
           </div>
         </div>

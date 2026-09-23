@@ -1,14 +1,17 @@
 /**
- * Beacon GPS Speed Calculator
+ * Beacon GPS Speed & Distance Telemetry Calculator
  *
- * Implements high-reliability speed determination for mobile browsers:
+ * Implements high-reliability telemetry determination for mobile browsers:
  * 1. Reads position.coords.speed when it is a finite non-negative value.
  * 2. When coords.speed is null/undefined/unusable, falls back to calculating speed
  *    from consecutive GPS positions (Haversine distance in meters / elapsed seconds * 3.6).
- * 3. Rejects invalid coordinates, duplicate timestamps, poor accuracy fixes, and outlier jumps.
- * 4. Applies Exponential Moving Average (EMA) smoothing to prevent single-sample spikes.
- * 5. Accurately identifies stationary state vs truly unavailable speed.
- * 6. Never uses accelerometer as vehicle speed (motion is strictly for vibration/events).
+ * 3. Accumulates real travelled distance along the GPS path, filtering stationary noise (< 1.5m)
+ *    and rejecting jumps from poor accuracy fixes (> 45m).
+ * 4. Extracts altitude and heading when genuinely available from device hardware.
+ * 5. Rejects invalid coordinates, duplicate timestamps, and outlier jumps (> 140 km/h).
+ * 6. Applies Exponential Moving Average (EMA) smoothing to prevent single-sample spikes.
+ * 7. Accurately identifies stationary state vs truly unavailable speed.
+ * 8. Never uses accelerometer as vehicle speed (motion is strictly for vibration/events).
  */
 
 export interface RawGpsFix {
@@ -17,6 +20,8 @@ export interface RawGpsFix {
     longitude: number;
     accuracy: number;
     speed?: number | null | undefined;
+    altitude?: number | null | undefined;
+    heading?: number | null | undefined;
   };
   timestamp: number;
 }
@@ -49,17 +54,28 @@ export interface GpsSpeedResult {
   status: GpsSpeedStatus;
   /** Distance in meters from previous valid GPS fix */
   distanceMeters: number | null;
+  /** Cumulative valid travelled distance in meters */
+  cumulativeDistanceMeters: number;
   /** Elapsed seconds since previous valid GPS fix */
   elapsedSeconds: number | null;
+  /** Altitude in meters above sea level, or null if unavailable */
+  altitudeMeters: number | null;
+  /** Heading in degrees (0–360°), or null if unavailable */
+  headingDegrees: number | null;
 }
 
 export interface GpsSpeedDiagnostics {
   gpsAvailable: boolean;
+  latitude: number | null;
+  longitude: number | null;
   coordsSpeedRaw: number | null;
   coordsSpeedKmh: number | null;
   calculatedFallbackSpeedKmh: number | null;
   currentSpeedKmh: number | null;
+  cumulativeDistanceMeters: number;
   gpsAccuracyMeters: number;
+  altitudeMeters: number | null;
+  headingDegrees: number | null;
   timestamp: number;
   samplesReceivedCount: number;
   speedSource: GpsSpeedSource;
@@ -73,11 +89,14 @@ export interface GpsSpeedDiagnostics {
 /** Maximum valid vehicle speed (km/h) for public transit in Kerala. Above this is rejected as a GPS teleport jump. */
 export const MAX_VALID_SPEED_KMH = 140.0;
 
-/** Accuracy threshold (meters) for calculating derivative speed. Poor accuracy circles create massive false speed spikes. */
+/** Accuracy threshold (meters) for calculating derivative speed/distance. Poor accuracy circles create massive false speed spikes. */
 export const POOR_ACCURACY_THRESHOLD_M = 45.0;
 
 /** Distance threshold (meters) below which vehicle is considered stationary (noise filter). */
 export const STATIONARY_DISTANCE_THRESHOLD_M = 1.5;
+
+/** Maximum single-step distance jump (meters) accepted between consecutive fixes within typical 1-3s intervals. */
+export const MAX_DISTANCE_STEP_METERS = 300.0;
 
 /** Minimum elapsed time (seconds) between fixes to perform division. */
 export const MIN_ELAPSED_SECONDS = 0.25;
@@ -137,10 +156,15 @@ export class GpsSpeedCalculator {
   } | null = null;
 
   private prevSmoothedSpeedKmh: number | null = null;
+  private cumulativeDistanceMeters = 0.0;
   private samplesReceivedCount = 0;
   private lastResult: GpsSpeedResult | null = null;
   private lastAccuracyMeters = 0;
   private lastTimestamp = 0;
+  private lastLat: number | null = null;
+  private lastLng: number | null = null;
+  private lastAltitude: number | null = null;
+  private lastHeading: number | null = null;
 
   /**
    * Reset internal state (call when trip stops or GPS restarts).
@@ -148,14 +172,30 @@ export class GpsSpeedCalculator {
   reset(): void {
     this.prevFix = null;
     this.prevSmoothedSpeedKmh = null;
+    this.cumulativeDistanceMeters = 0.0;
     this.samplesReceivedCount = 0;
     this.lastResult = null;
     this.lastAccuracyMeters = 0;
     this.lastTimestamp = 0;
+    this.lastLat = null;
+    this.lastLng = null;
+    this.lastAltitude = null;
+    this.lastHeading = null;
   }
 
   /**
-   * Calculate speed for a new GPS fix.
+   * Reset only distance (e.g. at the confirmed start of a new trip).
+   */
+  resetDistance(): void {
+    this.cumulativeDistanceMeters = 0.0;
+  }
+
+  getCumulativeDistanceMeters(): number {
+    return Number(this.cumulativeDistanceMeters.toFixed(1));
+  }
+
+  /**
+   * Calculate speed and accumulate distance for a new GPS fix.
    */
   calculate(fix: RawGpsFix): GpsSpeedResult {
     this.samplesReceivedCount += 1;
@@ -167,6 +207,25 @@ export class GpsSpeedCalculator {
     const accuracy = fix.coords.accuracy;
     const timestamp = fix.timestamp || Date.now();
 
+    // Altitude: expose only when finite number
+    const altitude =
+      typeof fix.coords.altitude === "number" && Number.isFinite(fix.coords.altitude)
+        ? Number(fix.coords.altitude.toFixed(1))
+        : null;
+
+    // Heading: expose only when finite number >= 0
+    const heading =
+      typeof fix.coords.heading === "number" &&
+      Number.isFinite(fix.coords.heading) &&
+      fix.coords.heading >= 0
+        ? Number(fix.coords.heading.toFixed(1))
+        : null;
+
+    this.lastLat = lat;
+    this.lastLng = lng;
+    this.lastAltitude = altitude;
+    this.lastHeading = heading;
+
     // 1. Validate coordinates
     if (!isValidCoordinate(lat, lng)) {
       const result: GpsSpeedResult = {
@@ -176,7 +235,10 @@ export class GpsSpeedCalculator {
         source: "UNAVAILABLE",
         status: "INVALID_COORDS",
         distanceMeters: null,
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
         elapsedSeconds: null,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
@@ -189,6 +251,30 @@ export class GpsSpeedCalculator {
       Number.isFinite(rawCoordsSpeed) &&
       rawCoordsSpeed >= 0;
 
+    // Handle distance accumulation if we have a previous fix
+    let incrementalDist = 0;
+    let elapsedSeconds: number | null = null;
+
+    if (this.prevFix !== null) {
+      elapsedSeconds = (timestamp - this.prevFix.timestamp) / 1000;
+      if (elapsedSeconds > 0 && elapsedSeconds <= MAX_ELAPSED_SECONDS) {
+        const stepDist = calculateDistanceMeters(this.prevFix.lat, this.prevFix.lng, lat, lng);
+        // Only accumulate if accuracy is acceptable, step is above stationary noise, and not a teleport jump
+        if (
+          accuracy <= POOR_ACCURACY_THRESHOLD_M &&
+          this.prevFix.accuracy <= POOR_ACCURACY_THRESHOLD_M &&
+          stepDist >= STATIONARY_DISTANCE_THRESHOLD_M &&
+          stepDist <= MAX_DISTANCE_STEP_METERS
+        ) {
+          const stepSpeedKmh = (stepDist / elapsedSeconds) * 3.6;
+          if (stepSpeedKmh <= MAX_VALID_SPEED_KMH) {
+            incrementalDist = stepDist;
+            this.cumulativeDistanceMeters += stepDist;
+          }
+        }
+      }
+    }
+
     if (hasValidCoordsSpeed) {
       const rawKmh = rawCoordsSpeed * 3.6;
 
@@ -200,8 +286,11 @@ export class GpsSpeedCalculator {
           fallbackSpeedKmh: null,
           source: "UNAVAILABLE",
           status: "OUTLIER_REJECTED",
-          distanceMeters: null,
-          elapsedSeconds: null,
+          distanceMeters: incrementalDist > 0 ? Number(incrementalDist.toFixed(2)) : null,
+          cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+          elapsedSeconds,
+          altitudeMeters: altitude,
+          headingDegrees: heading,
         };
         this.lastResult = result;
         return result;
@@ -218,7 +307,10 @@ export class GpsSpeedCalculator {
           source: "COORDS_SPEED",
           status: "STATIONARY",
           distanceMeters: 0,
-          elapsedSeconds: null,
+          cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+          elapsedSeconds,
+          altitudeMeters: altitude,
+          headingDegrees: heading,
         };
         this.lastResult = result;
         return result;
@@ -240,8 +332,11 @@ export class GpsSpeedCalculator {
         fallbackSpeedKmh: null,
         source: "COORDS_SPEED",
         status: "VALID",
-        distanceMeters: null,
-        elapsedSeconds: null,
+        distanceMeters: incrementalDist > 0 ? Number(incrementalDist.toFixed(2)) : null,
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
@@ -257,7 +352,10 @@ export class GpsSpeedCalculator {
         source: "UNAVAILABLE",
         status: "POOR_ACCURACY",
         distanceMeters: null,
-        elapsedSeconds: null,
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
@@ -273,17 +371,20 @@ export class GpsSpeedCalculator {
         source: "UNAVAILABLE",
         status: "FIRST_SAMPLE",
         distanceMeters: null,
+        cumulativeDistanceMeters: 0,
         elapsedSeconds: null,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
     }
 
     // Elapsed time calculation
-    const elapsedSeconds = (timestamp - this.prevFix.timestamp) / 1000;
+    const elapsed = (timestamp - this.prevFix.timestamp) / 1000;
 
     // Duplicate or backwards timestamp
-    if (elapsedSeconds <= 0) {
+    if (elapsed <= 0) {
       const result: GpsSpeedResult = {
         speedKmh: this.prevSmoothedSpeedKmh,
         rawCoordsSpeedKmh: null,
@@ -291,14 +392,17 @@ export class GpsSpeedCalculator {
         source: this.prevSmoothedSpeedKmh !== null ? "CALCULATED_FALLBACK" : "UNAVAILABLE",
         status: "DUPLICATE_TIMESTAMP",
         distanceMeters: null,
-        elapsedSeconds,
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds: elapsed,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
     }
 
     // Very rapid fix (< 0.25s) — skip derivative to avoid division noise
-    if (elapsedSeconds < MIN_ELAPSED_SECONDS) {
+    if (elapsed < MIN_ELAPSED_SECONDS) {
       const result: GpsSpeedResult = {
         speedKmh: this.prevSmoothedSpeedKmh,
         rawCoordsSpeedKmh: null,
@@ -306,14 +410,17 @@ export class GpsSpeedCalculator {
         source: this.prevSmoothedSpeedKmh !== null ? "CALCULATED_FALLBACK" : "UNAVAILABLE",
         status: "VALID",
         distanceMeters: null,
-        elapsedSeconds,
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds: elapsed,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
     }
 
     // Long gap (> 30s) — reset baseline rather than computing speed across sleep gap
-    if (elapsedSeconds > MAX_ELAPSED_SECONDS) {
+    if (elapsed > MAX_ELAPSED_SECONDS) {
       this.prevFix = { lat, lng, timestamp, accuracy };
       this.prevSmoothedSpeedKmh = null;
       const result: GpsSpeedResult = {
@@ -323,7 +430,10 @@ export class GpsSpeedCalculator {
         source: "UNAVAILABLE",
         status: "FIRST_SAMPLE",
         distanceMeters: null,
-        elapsedSeconds,
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds: elapsed,
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
@@ -348,14 +458,17 @@ export class GpsSpeedCalculator {
         source: "STATIONARY",
         status: "STATIONARY",
         distanceMeters: Number(distanceMeters.toFixed(2)),
-        elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds: Number(elapsed.toFixed(2)),
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
     }
 
     // Calculate derived speed: m/s -> km/h
-    const metersPerSecond = distanceMeters / elapsedSeconds;
+    const metersPerSecond = distanceMeters / elapsed;
     const rawFallbackSpeedKmh = metersPerSecond * 3.6;
 
     // Outlier check: reject physically implausible vehicle speeds
@@ -367,7 +480,10 @@ export class GpsSpeedCalculator {
         source: "UNAVAILABLE",
         status: "OUTLIER_REJECTED",
         distanceMeters: Number(distanceMeters.toFixed(2)),
-        elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
+        cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+        elapsedSeconds: Number(elapsed.toFixed(2)),
+        altitudeMeters: altitude,
+        headingDegrees: heading,
       };
       this.lastResult = result;
       return result;
@@ -391,7 +507,10 @@ export class GpsSpeedCalculator {
       source: "CALCULATED_FALLBACK",
       status: "VALID",
       distanceMeters: Number(distanceMeters.toFixed(2)),
-      elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
+      cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
+      elapsedSeconds: Number(elapsed.toFixed(2)),
+      altitudeMeters: altitude,
+      headingDegrees: heading,
     };
     this.lastResult = result;
     return result;
@@ -400,9 +519,15 @@ export class GpsSpeedCalculator {
   /**
    * Return a diagnostics snapshot suitable for dev mode inspection.
    */
-  getDiagnostics(gpsAvailable: boolean): GpsSpeedDiagnostics {
+  getDiagnostics(gpsAvailable?: boolean): GpsSpeedDiagnostics {
+    const isAvailable =
+      gpsAvailable !== undefined
+        ? gpsAvailable
+        : this.samplesReceivedCount > 0 && this.lastLat !== null;
     return {
-      gpsAvailable,
+      gpsAvailable: isAvailable,
+      latitude: this.lastLat,
+      longitude: this.lastLng,
       coordsSpeedRaw:
         this.lastResult?.rawCoordsSpeedKmh !== null && this.lastResult?.rawCoordsSpeedKmh !== undefined
           ? Number((this.lastResult.rawCoordsSpeedKmh / 3.6).toFixed(2))
@@ -410,7 +535,10 @@ export class GpsSpeedCalculator {
       coordsSpeedKmh: this.lastResult?.rawCoordsSpeedKmh ?? null,
       calculatedFallbackSpeedKmh: this.lastResult?.fallbackSpeedKmh ?? null,
       currentSpeedKmh: this.lastResult?.speedKmh ?? null,
+      cumulativeDistanceMeters: this.getCumulativeDistanceMeters(),
       gpsAccuracyMeters: Number(this.lastAccuracyMeters.toFixed(1)),
+      altitudeMeters: this.lastAltitude,
+      headingDegrees: this.lastHeading,
       timestamp: this.lastTimestamp,
       samplesReceivedCount: this.samplesReceivedCount,
       speedSource: this.lastResult?.source ?? "UNAVAILABLE",

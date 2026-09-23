@@ -33,6 +33,10 @@ export interface TripGPSPoint {
   raw_coords_speed_kmh?: number | null | undefined;
   /** Calculated fallback speed from consecutive fixes (km/h) */
   fallback_speed_kmh?: number | null | undefined;
+  /** Altitude in meters above sea level if available */
+  altitude_m?: number | null | undefined;
+  /** Heading in degrees (0–360°) if available */
+  heading_deg?: number | null | undefined;
 }
 
 /**
@@ -135,3 +139,33 @@ export interface LiveTripMetrics {
 }
 
 export type { GpsSpeedDiagnostics } from "./gps-speed-calculator";
+export type { FeatureReadinessReport, SynchronizedSensorSample } from "./live-feature-pipeline";
+
+export interface LiveTelemetry {
+  latitude: number | null;
+  longitude: number | null;
+  accuracyMeters: number | null;
+  speedKmh: number | null;
+  browserSpeedKmh?: number | null | undefined;
+  calculatedSpeedKmh?: number | null | undefined;
+  speedSource?: "COORDS_SPEED" | "CALCULATED_FALLBACK" | "STATIONARY" | "DEMO" | "MANUAL" | "UNAVAILABLE" | undefined;
+  distanceMeters: number;
+  headingDegrees: number | null;
+  altitudeMeters: number | null;
+  gpsStatus: "ACTIVE" | "WAITING" | "DENIED" | "UNAVAILABLE";
+  gpsPermission?: "GRANTED" | "DENIED" | "PROMPT" | undefined;
+  gpsAvailable?: boolean | undefined;
+  gpsSampleCount: number;
+  lastGpsUpdate: number | null;
+  accelerometerAvailable: boolean;
+  gyroscopeAvailable: boolean;
+  accelerometer: { x: number; y: number; z: number } | null;
+  gyroscope: { alpha: number; beta: number; gamma: number } | null;
+  motionSampleCount: number;
+  lastMotionUpdate: number | null;
+  matchedSegmentId: string | null;
+  distanceToSegmentMeters: number | null;
+  segmentMatchStatus: "MATCHED" | "OUT_OF_CORRIDOR" | "POOR_ACCURACY" | "SEARCHING";
+  isOnline?: boolean | undefined;
+  isSecureContext: boolean;
+}

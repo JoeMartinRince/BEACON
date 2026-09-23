@@ -436,3 +436,161 @@ function parseCsvText<T>(csv: string): T[] {
     return row as T;
   });
 }
+
+import type { BatchObservation } from "./live-sensor-collector";
+
+// ==============================================================================
+// 6. PERSISTENCE: LIVE SENSOR OBSERVATIONS & OFFLINE BUFFER
+// ==============================================================================
+
+const OFFLINE_BUFFER_KEY = "roadsense:offline_sensor_buffer";
+const MAX_LOCAL_OFFLINE_BUFFER = 1000;
+
+export interface LiveObservationPayload {
+  pass_id: string;
+  bus_id: string;
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+  speed: number;
+  accel_x: number;
+  accel_y: number;
+  accel_z: number;
+  gyro_x: number;
+  gyro_y: number;
+  gyro_z: number;
+  segment_id: string;
+  gps_accuracy?: number | undefined;
+  motion_state?: string | undefined;
+}
+
+export function getOfflineObservationCount(): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const raw = localStorage.getItem(OFFLINE_BUFFER_KEY);
+    if (!raw) return 0;
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function bufferOfflineRecords(records: LiveObservationPayload[]) {
+  if (typeof window === "undefined" || records.length === 0) return;
+  try {
+    const existingRaw = localStorage.getItem(OFFLINE_BUFFER_KEY);
+    const existing: LiveObservationPayload[] = existingRaw ? JSON.parse(existingRaw) : [];
+    const combined = [...existing, ...records].slice(-MAX_LOCAL_OFFLINE_BUFFER);
+    localStorage.setItem(OFFLINE_BUFFER_KEY, JSON.stringify(combined));
+  } catch {
+    // quota exceeded or storage unavailable
+  }
+}
+
+/**
+ * Persist a batch of live observations to Supabase sensor_data table.
+ * If offline or write fails, safely buffers into localStorage.
+ */
+export async function persistLiveObservations(
+  observations: BatchObservation[],
+  tripId: string,
+  busId: string = "KL-07-BUS-01"
+): Promise<boolean> {
+  if (!observations || observations.length === 0) return true;
+
+  const records: LiveObservationPayload[] = observations.map((obs) => ({
+    pass_id: tripId,
+    bus_id: busId,
+    timestamp: new Date(obs.point.timestamp).toISOString(),
+    latitude: obs.point.lat,
+    longitude: obs.point.lng,
+    speed: obs.point.speed_kmh != null ? Number(obs.point.speed_kmh) : 0,
+    accel_x: obs.motion?.accel_x ?? obs.point.accel_x ?? 0,
+    accel_y: obs.motion?.accel_y ?? obs.point.accel_y ?? 0,
+    accel_z: obs.motion?.accel_z ?? obs.point.accel_z ?? 9.8,
+    gyro_x: obs.motion?.gyro_x ?? 0,
+    gyro_y: obs.motion?.gyro_y ?? 0,
+    gyro_z: obs.motion?.gyro_z ?? obs.point.gyro_z ?? 0,
+    segment_id: obs.segment_id ?? obs.point.segment_id ?? "SEG_001",
+    gps_accuracy: obs.point.accuracy_m !== undefined ? obs.point.accuracy_m : undefined,
+    motion_state: (obs.point.speed_kmh ?? 0) > 2 ? "MOVING" : "STATIONARY",
+  }));
+
+  if (isSupabaseConfigured && typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      // Ensure pass record exists to satisfy foreign key constraint
+      await supabase.from("bus_passes").upsert(
+        {
+          pass_id: tripId,
+          bus_id: busId,
+          route_id: "LIVE_ROUTE",
+          start_time: new Date(observations[0]?.point.timestamp ?? Date.now()).toISOString(),
+          distance_km: 0,
+          event_count: 0,
+          segments_traversed: 0,
+        },
+        { onConflict: "pass_id" }
+      );
+
+      const { error } = await supabase.from("sensor_data").insert(records);
+      if (!error) {
+        // Also drain offline buffer if any
+        syncOfflineSensorBuffer(tripId, busId).catch(() => {});
+        return true;
+      }
+    } catch {
+      // network or db issue -> buffer offline
+    }
+  }
+
+  // Buffer offline if Supabase write could not complete
+  bufferOfflineRecords(records);
+  return false;
+}
+
+/**
+ * Drain and upload any offline buffered observations to Supabase
+ */
+export async function syncOfflineSensorBuffer(
+  tripId?: string,
+  busId?: string
+): Promise<number> {
+  if (!isSupabaseConfigured || (typeof navigator !== "undefined" && !navigator.onLine)) {
+    return 0;
+  }
+  if (typeof window === "undefined") return 0;
+
+  try {
+    const raw = localStorage.getItem(OFFLINE_BUFFER_KEY);
+    if (!raw) return 0;
+    const records: LiveObservationPayload[] = JSON.parse(raw);
+    if (!Array.isArray(records) || records.length === 0) return 0;
+
+    // Ensure pass exists if tripId provided
+    if (tripId) {
+      await supabase.from("bus_passes").upsert(
+        {
+          pass_id: tripId,
+          bus_id: busId || "KL-07-BUS-01",
+          route_id: "LIVE_ROUTE",
+          start_time: records[0]?.timestamp ?? new Date().toISOString(),
+          distance_km: 0,
+          event_count: 0,
+          segments_traversed: 0,
+        },
+        { onConflict: "pass_id" }
+      );
+    }
+
+    const { error } = await supabase.from("sensor_data").insert(records);
+    if (!error) {
+      localStorage.removeItem(OFFLINE_BUFFER_KEY);
+      return records.length;
+    }
+  } catch {
+    // Keep in buffer for next retry
+  }
+  return 0;
+}
+

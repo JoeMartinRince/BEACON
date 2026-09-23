@@ -10,6 +10,7 @@ import {
 import {
   DEFAULT_TRIP_SETTINGS,
   type GpsSpeedDiagnostics,
+  type LiveTelemetry,
   type SensorAvailability,
   type Trip,
   type TripAffectedSegment,
@@ -37,6 +38,8 @@ import {
   type BatchObservation,
   type SegmentRef,
 } from "./live-sensor-collector";
+import type { FeatureReadinessReport } from "./live-feature-pipeline";
+import { persistLiveObservations } from "./beacon-db";
 
 interface TripContextType {
   state: TripDetectionState;
@@ -53,6 +56,10 @@ interface TripContextType {
   sensorStatus: SensorAvailability;
   /** Number of observations queued in the offline buffer */
   queuedBufferCount: number;
+  /** Real-time mobile sensor telemetry stream */
+  telemetry: LiveTelemetry;
+  /** 34-feature ML readiness report */
+  featureReadiness: FeatureReadinessReport | null;
   startManualTrip: (origin?: string, destination?: string) => void;
   endManualTrip: () => void;
   simulateTrip: () => void;
@@ -70,6 +77,34 @@ interface TripContextType {
 }
 
 const TripContext = createContext<TripContextType | null>(null);
+
+const INITIAL_TELEMETRY: LiveTelemetry = {
+  latitude: null,
+  longitude: null,
+  accuracyMeters: null,
+  speedKmh: null,
+  browserSpeedKmh: null,
+  calculatedSpeedKmh: null,
+  speedSource: "UNAVAILABLE",
+  distanceMeters: 0,
+  headingDegrees: null,
+  altitudeMeters: null,
+  gpsStatus: "WAITING",
+  gpsPermission: "PROMPT",
+  gpsSampleCount: 0,
+  lastGpsUpdate: null,
+  accelerometerAvailable: false,
+  gyroscopeAvailable: false,
+  accelerometer: null,
+  gyroscope: null,
+  motionSampleCount: 0,
+  lastMotionUpdate: null,
+  matchedSegmentId: null,
+  distanceToSegmentMeters: null,
+  segmentMatchStatus: "SEARCHING",
+  isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
+  isSecureContext: typeof window !== "undefined" ? Boolean(window.isSecureContext) : true,
+};
 
 // Initial realistic sample history for prototype demonstration
 const INITIAL_TRIP_HISTORY: Trip[] = [
@@ -202,7 +237,7 @@ const INITIAL_TRIP_HISTORY: Trip[] = [
 ];
 
 export function TripProvider({ children }: { children: ReactNode }) {
-  const { events: rawEvents, summaries } = useRoadData();
+  const { events: rawEvents, summaries, segments: geoSegments } = useRoadData();
 
   const [settings, setSettings] = useState<TripSettings>(DEFAULT_TRIP_SETTINGS);
   const [tripHistory, setTripHistory] = useState<Trip[]>(INITIAL_TRIP_HISTORY);
@@ -223,6 +258,10 @@ export function TripProvider({ children }: { children: ReactNode }) {
     isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
   });
   const [queuedBufferCount, setQueuedBufferCount] = useState(0);
+
+  // ── Full real-time telemetry and 34-feature readiness diagnostics ──────────
+  const [telemetry, setTelemetry] = useState<LiveTelemetry>(INITIAL_TELEMETRY);
+  const [featureReadiness, setFeatureReadiness] = useState<FeatureReadinessReport | null>(null);
 
   // ── State machine refs (pure, extracted) ───────────────────────────────────
   const smRefsRef = useRef<TripStateMachineRefs>(createStateMachineRefs());
@@ -513,8 +552,12 @@ export function TripProvider({ children }: { children: ReactNode }) {
     setIsSimulating(false);
     setIsPaused(false);
 
-    const startLat = 10.0158;
-    const startLng = 76.3418;
+    // Reset distance calculator on the collector for clean trip distance
+    collectorRef.current?.resetDistance();
+
+    const liveTelemetry = collectorRef.current?.getTelemetry();
+    const startLat = liveTelemetry?.latitude ?? 10.0158;
+    const startLng = liveTelemetry?.longitude ?? 76.3418;
     const startName =
       origin && origin.trim() !== "" ? origin : reverseGeocodeLocation(startLat, startLng);
 
@@ -531,14 +574,21 @@ export function TripProvider({ children }: { children: ReactNode }) {
       duration_seconds: 0,
       detection_mode: "MANUAL",
       gps_points: [
-        { lat: startLat, lng: startLng, speed_kmh: 0, accuracy_m: 5, timestamp: Date.now(), source: "MANUAL" },
+        {
+          lat: startLat,
+          lng: startLng,
+          speed_kmh: liveTelemetry?.speedKmh ?? 0,
+          accuracy_m: liveTelemetry?.accuracyMeters ?? 5,
+          timestamp: Date.now(),
+          source: "MANUAL",
+        },
       ],
       event_count: 0,
-      segment_count: 1,
+      segment_count: liveTelemetry?.matchedSegmentId ? 1 : 0,
       observations_count: 1,
       status: "TRIP_ACTIVE",
-      max_speed_kmh: 0,
-      avg_speed_kmh: 0,
+      max_speed_kmh: liveTelemetry?.speedKmh ?? 0,
+      avg_speed_kmh: liveTelemetry?.speedKmh ?? 0,
     };
 
     setCurrentTrip(manualTrip);
@@ -725,26 +775,30 @@ export function TripProvider({ children }: { children: ReactNode }) {
         onGpsPoint: (point) => {
           setCurrentTrip((prev) => {
             if (!prev || stateRef.current !== "TRIP_ACTIVE") return prev;
-            const lastPt = prev.gps_points[prev.gps_points.length - 1] ?? null;
-            const incrementalKm = lastPt
-              ? calculateDistanceKm(lastPt.lat, lastPt.lng, point.lat, point.lng)
-              : 0;
-            const updatedDist = Number((prev.distance_km + incrementalKm).toFixed(3));
+            // Cumulative travelled distance from GPS tracker
+            const telemetryDistM = collectorRef.current?.getTelemetry().distanceMeters ?? 0;
+            const updatedDistKm = Number((telemetryDistM / 1000).toFixed(3));
             const updatedPoints = [...prev.gps_points, point];
             const updatedMaxSpeed =
               point.speed_kmh !== null
                 ? Math.max(prev.max_speed_kmh ?? 0, point.speed_kmh)
                 : (prev.max_speed_kmh ?? 0);
-            const matchedEvents = Math.min(rawEvents.length, Math.floor(updatedDist * 0.9));
-            const matchedSegments = Math.min(summaries.length, Math.floor(updatedDist * 4.5));
+            // In Live mode, do NOT fabricate ML events. Only count real ML detections or keep at 0.
+            const isDemo = prev.trip_id.includes("DEMO") || isSimulating;
+            const matchedEvents = isDemo ? Math.min(rawEvents.length, Math.floor(updatedDistKm * 0.9)) : 0;
+            const uniqueSegments = Array.from(new Set(updatedPoints.map((p) => p.segment_id).filter(Boolean)));
+            const matchedSegments = isDemo
+              ? Math.min(summaries.length, Math.floor(updatedDistKm * 4.5))
+              : Math.max(1, uniqueSegments.length);
+
             return {
               ...prev,
-              distance_km: updatedDist,
+              distance_km: updatedDistKm,
               current_location_name: reverseGeocodeLocation(point.lat, point.lng),
               gps_points: updatedPoints,
               max_speed_kmh: updatedMaxSpeed,
               event_count: matchedEvents,
-              segment_count: Math.max(1, matchedSegments),
+              segment_count: matchedSegments,
               observations_count: (prev.observations_count ?? prev.gps_points.length) + 1,
             };
           });
@@ -765,10 +819,23 @@ export function TripProvider({ children }: { children: ReactNode }) {
         },
         onBatchFlush: (observations: BatchObservation[]) => {
           setQueuedBufferCount(0);
-          void observations;
+          if (observations.length > 0) {
+            const activeTrip = currentTripRef.current;
+            const tripId = activeTrip?.trip_id ?? "LIVE-SENSOR-STREAM";
+            const busId = activeTrip?.bus_id ?? "KL-07-BUS-01";
+            persistLiveObservations(observations, tripId, busId).catch((err) => {
+              console.warn("[trip-context] live observation persistence failed:", err);
+            });
+          }
         },
         onDiagnostics: (diag) => {
           setGpsDiagnostics(diag);
+        },
+        onTelemetry: (tel) => {
+          setTelemetry(tel);
+        },
+        onFeatureReadiness: (rep) => {
+          setFeatureReadiness(rep);
         },
       },
       [],
@@ -795,14 +862,37 @@ export function TripProvider({ children }: { children: ReactNode }) {
 
   // Update collector's segment list when road data loads
   useEffect(() => {
-    if (!collectorRef.current || summaries.length === 0) return;
-    const refs: SegmentRef[] = summaries.map((s) => ({
-      segment_id: s.segment_id,
-      lat: 10.0158,
-      lng: 76.3418,
-    }));
-    collectorRef.current.updateSegments(refs);
-  }, [summaries]);
+    if (!collectorRef.current) return;
+    if (geoSegments && geoSegments.length > 0) {
+      const refs: SegmentRef[] = geoSegments.map((s) => {
+        const coords = s.geometry?.coordinates ?? [];
+        if (coords.length > 0) {
+          const midIdx = Math.floor(coords.length / 2);
+          const pair = coords[midIdx];
+          const lat = pair && typeof pair[1] === "number" ? pair[1] : 10.0158;
+          const lng = pair && typeof pair[0] === "number" ? pair[0] : 76.3418;
+          return {
+            segment_id: s.properties.segment_id,
+            lat,
+            lng,
+          };
+        }
+        return {
+          segment_id: s.properties.segment_id,
+          lat: 10.0158,
+          lng: 76.3418,
+        };
+      });
+      collectorRef.current.updateSegments(refs);
+    } else if (summaries.length > 0) {
+      const refs: SegmentRef[] = summaries.map((s) => ({
+        segment_id: s.segment_id,
+        lat: 10.0158,
+        lng: 76.3418,
+      }));
+      collectorRef.current.updateSegments(refs);
+    }
+  }, [geoSegments, summaries]);
 
   const value = useMemo<TripContextType>(
     () => ({
@@ -817,6 +907,8 @@ export function TripProvider({ children }: { children: ReactNode }) {
       gpsDiagnostics,
       sensorStatus,
       queuedBufferCount,
+      telemetry,
+      featureReadiness,
       startManualTrip,
       endManualTrip,
       simulateTrip,
@@ -843,6 +935,8 @@ export function TripProvider({ children }: { children: ReactNode }) {
       gpsDiagnostics,
       sensorStatus,
       queuedBufferCount,
+      telemetry,
+      featureReadiness,
       inspectedTrip,
       requestMotionPermission,
     ],
