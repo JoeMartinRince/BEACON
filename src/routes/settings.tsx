@@ -39,12 +39,12 @@ const names = [
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — RoadSense Kerala" },
+      { title: "Settings — Beacon" },
       {
         name: "description",
         content: "Manage local prototype data files, trip detection preferences, and database status.",
       },
-      { property: "og:title", content: "Settings — RoadSense Kerala" },
+      { property: "og:title", content: "Settings — Beacon" },
       {
         property: "og:description",
         content: "Upload replacement datasets or configure automatic trip detection parameters.",

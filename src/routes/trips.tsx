@@ -6,12 +6,12 @@ import { TripHistory } from "@/components/roadsense/trip-history";
 export const Route = createFileRoute("/trips")({
   head: () => ({
     meta: [
-      { title: "Trips & Tracking — RoadSense Kerala" },
+      { title: "Trips & Tracking — Beacon" },
       {
         name: "description",
         content: "Automatic bus trip detection, live journey tracking, and history.",
       },
-      { property: "og:title", content: "Trips & Tracking — RoadSense Kerala" },
+      { property: "og:title", content: "Trips & Tracking — Beacon" },
       {
         property: "og:description",
         content: "Zero-touch trip detection and corridor sensing history.",

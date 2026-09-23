@@ -5,8 +5,6 @@ import {
   MapPinned,
   Route,
   ArrowUpRight,
-  BusFront,
-  Map as MapIcon,
   ShieldCheck,
   AlertTriangle,
 } from "lucide-react";
@@ -14,9 +12,9 @@ import { useRoadData, label } from "@/lib/roadsense-data";
 import { useUserMode } from "@/lib/mode-context";
 import { calculateNetworkCondition } from "@/lib/condition-engine";
 import { MiniBars, MiniDots, MiniRange } from "./charts";
+import { BeaconHero } from "./beacon-hero";
 
 const MapView = lazy(() => import("./leaflet-map"));
-const rings = Array.from({ length: 44 });
 
 export function Dashboard() {
   const d = useRoadData();
@@ -35,9 +33,6 @@ export function Dashboard() {
     ? d.events.reduce((a, e) => a + e.severity_0_5, 0) / d.events.length
     : 0;
   const coverage = Math.round((d.summaries.length / 160) * 100);
-  const suppShare = Math.round(
-    (d.suppressed.length / Math.max(1, d.events.length + d.suppressed.length)) * 100
-  );
 
   const dynamicLastObserved = useMemo(() => {
     if (selected?.last_observed_at) {
@@ -133,7 +128,9 @@ export function Dashboard() {
   }, [isTraveller, net, d.events.length, d.summaries.length, avg]);
 
   return (
-    <div className="dashboard-grid">
+    <div className="space-y-4">
+      <BeaconHero />
+      <div className="dashboard-grid">
       {/* 6 & 7. Key Statistics - Responsive 2-column on mobile, prominent numbers */}
       <section className="kpi-grid">
         {stats.map((s, idx) => (
@@ -181,7 +178,9 @@ export function Dashboard() {
               )}
             </div>
 
-            <h4 className="segment-id-text">{selected?.segment_id}</h4>
+            <h4 className="segment-id-text">
+              {selected?.segment_id ? `Road Segment (${selected.segment_id})` : "Road Segment (SEG_036)"}
+            </h4>
 
             <div className="detail-grid">
               <div>
@@ -230,7 +229,9 @@ export function Dashboard() {
               )}
             </div>
 
-            <h4 className="segment-id-text">{selected?.segment_id}</h4>
+            <h4 className="segment-id-text">
+              {selected?.segment_id ? `Road Segment (${selected.segment_id})` : "Road Segment (SEG_036)"}
+            </h4>
 
             <div className="detail-grid">
               <div>
@@ -255,43 +256,12 @@ export function Dashboard() {
         )}
       </section>
 
-      {/* Route & Recent Passes */}
+      {/* Recent Passes Timeline */}
       <section className="route-stack">
-        <article className="route-card">
-          <div className="route-head">
-            <div>
-              <small>Selected corridor</small>
-              <h3>
-                {feature?.properties.start_chainage_m ?? 0} m <span>→</span>{" "}
-                {(feature?.properties.start_chainage_m ?? 0) + 100} m
-              </h3>
-            </div>
-            <BusFront />
-          </div>
-          <div className="corridor">
-            <i />
-            <span style={{ left: "58%" }}>
-              <BusFront />
-            </span>
-          </div>
-          <div className="route-times">
-            <small>
-              First pass
-              <br />
-              <b>07:24</b>
-            </small>
-            <small>
-              Last pass
-              <br />
-              <b>14:12</b>
-            </small>
-          </div>
-        </article>
-
         <article className="panel pass-card">
           <div className="card-heading">
-            <h3>{selected?.segment_id}</h3>
-            <small>Recent passes</small>
+            <h3>{selected?.segment_id ? `Road Segment (${selected.segment_id})` : "Road Segment (SEG_036)"}</h3>
+            <small>Recent observations</small>
           </div>
           <div className="timeline">
             {recent.map((e) => (
@@ -324,9 +294,9 @@ export function Dashboard() {
       {/* Map Overview */}
       <section className="panel map-overview">
         <div className="card-heading">
-          <h3>Map Overview</h3>
+          <h3>Road Map Overview</h3>
           <Link to="/road-map">
-            View map <ArrowUpRight />
+            View full map <ArrowUpRight />
           </Link>
         </div>
         <div className="map-wrap">
@@ -337,72 +307,7 @@ export function Dashboard() {
           </ClientOnly>
         </div>
       </section>
-
-      {/* Suppression */}
-      <section className="panel suppression">
-        <div className="card-heading">
-          <h3>Suppression</h3>
-          <small>Motion context</small>
-        </div>
-        <div className="ring-area">
-          <div className="seg-ring">
-            {rings.map((_, i) => (
-              <i
-                key={i}
-                className={
-                  i < Math.round((suppShare / 100) * rings.length) ? "filled" : ""
-                }
-                style={{
-                  transform: `rotate(${i * (360 / rings.length)}deg) translateY(-62px)`,
-                }}
-              />
-            ))}
-            <div>
-              <strong>{suppShare}%</strong>
-              <small>suppressed</small>
-            </div>
-          </div>
-          <div className="ring-legend">
-            <span>
-              <i className="hazard-dot" />
-              Hazard events <b>{d.events.length}</b>
-            </span>
-            <span>
-              <i className="supp-dot" />
-              Suppressed manoeuvres <b>{d.suppressed.length}</b>
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* Fleet */}
-      <section className="panel fleet">
-        <div>
-          <div className="card-heading">
-            <h3>Fleet status</h3>
-            <span className="live-dot">Live</span>
-          </div>
-          <p>Mobile sensing network</p>
-          <div className="fleet-stats">
-            <span>
-              <b>8</b>
-              <small>Active buses</small>
-            </span>
-            <span>
-              <b>12</b>
-              <small>Passes today</small>
-            </span>
-            <span>
-              <b>36</b>
-              <small>Avg km/h</small>
-            </span>
-          </div>
-        </div>
-        <div className="bus-art">
-          <MapIcon />
-          <BusFront />
-        </div>
-      </section>
     </div>
+  </div>
   );
 }

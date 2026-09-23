@@ -236,7 +236,9 @@ function RoadMap() {
                   <small className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block">
                     Selected Corridor
                   </small>
-                  <h3 className="text-base font-extrabold text-foreground">{selected}</h3>
+                  <h3 className="text-base font-extrabold text-foreground">
+                    {selected ? `Road Segment (${selected})` : "Road Segment"}
+                  </h3>
                   <p className="text-[11px] text-muted-foreground truncate">
                     {s?.road_name || "NH_CORRIDOR_A"} · {s?.road_type || "HIGHWAY"} ({s?.length_m || 120}m)
                   </p>

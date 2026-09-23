@@ -2,9 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Map,
-  Rows3,
-  MapPin,
-  ChartNoAxesCombined,
+  Navigation,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,9 +15,7 @@ interface NavItem {
 const NAV_ITEMS: readonly NavItem[] = [
   { name: "Dashboard", to: "/", icon: LayoutDashboard },
   { name: "Road Map", to: "/road-map", icon: Map },
-  { name: "Segments", to: "/segments", icon: Rows3 },
-  { name: "Events", to: "/events", icon: MapPin },
-  { name: "Trends", to: "/trends", icon: ChartNoAxesCombined },
+  { name: "Trip History", to: "/trips", icon: Navigation },
 ] as const;
 
 export function MobileBottomNav() {
