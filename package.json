@@ -25,7 +25,8 @@
     "test:unit": "vitest run",
     "trips:test": "vitest run",
     "trips:verify": "bun run scripts/verifyTrips.ts",
-    "e2e:verify": "bun run scripts/verifyEndToEnd.ts"
+    "e2e:verify": "bun run scripts/verifyEndToEnd.ts",
+    "routes:verify": "tsx scripts/verifyRoutes.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

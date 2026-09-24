@@ -38,17 +38,68 @@ function getSegmentColor(s?: SegmentRow): string {
   return CONDITION_COLORS.UNOBSERVED;
 }
 
+function getHazardDensityColor(s?: SegmentRow): string {
+  if (!s) return CONDITION_COLORS.UNOBSERVED;
+  const pot = Number(s.pothole_count ?? 0);
+  const sb = Number(s.speed_breaker_count ?? 0);
+  const bp = Number(s.broken_patch_count ?? 0);
+  const rough = Number(s.roughness_count ?? 0);
+  const total = pot + sb + bp + rough;
+
+  if (total === 0) return "#10b981"; // 0 hazards: emerald
+  if (total <= 15) return "#84cc16"; // low density: lime
+  if (total <= 40) return "#f59e0b"; // moderate density: amber
+  return "#ef4444"; // high density: red
+}
+
 function Fit() {
   const map = useMap();
   useEffect(() => {
     map.fitBounds(
       [
-        [9.96, 76.274],
-        [10.02, 76.292],
+        [9.85, 76.19],
+        [9.97, 76.31],
       ],
       { padding: [16, 16] },
     );
   }, [map]);
+  return null;
+}
+
+function AutoFitRoute({
+  features,
+  activeRouteSegmentIds,
+  syntheticWaypoints,
+}: {
+  features: SegmentFeature[];
+  activeRouteSegmentIds?: string[] | undefined;
+  syntheticWaypoints?: [number, number][] | undefined;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    if (syntheticWaypoints && syntheticWaypoints.length > 1) {
+      map.fitBounds(syntheticWaypoints, { padding: [32, 32] });
+      return;
+    }
+
+    if (activeRouteSegmentIds && activeRouteSegmentIds.length > 0) {
+      const idSet = new Set(activeRouteSegmentIds);
+      const routeCoords: [number, number][] = [];
+      features.forEach((f) => {
+        if (idSet.has(f.properties.segment_id)) {
+          f.geometry.coordinates.forEach((c) => {
+            if (typeof c[0] === "number" && typeof c[1] === "number") {
+              routeCoords.push([c[1], c[0]]);
+            }
+          });
+        }
+      });
+      if (routeCoords.length > 1) {
+        map.fitBounds(routeCoords, { padding: [32, 32] });
+      }
+    }
+  }, [map, activeRouteSegmentIds, syntheticWaypoints, features]);
+
   return null;
 }
 
@@ -60,14 +111,20 @@ export default function LeafletMap({
   selected,
   onSelect,
   compact = false,
+  activeRouteSegmentIds,
+  syntheticWaypoints,
+  heatmapMode = "condition",
 }: {
   features: SegmentFeature[];
   summaries: SegmentRow[];
-  events?: EventRow[];
-  mode?: string;
-  selected?: string;
-  onSelect?: (id: string) => void;
-  compact?: boolean;
+  events?: EventRow[] | undefined;
+  mode?: string | undefined;
+  selected?: string | undefined;
+  onSelect?: ((id: string) => void) | undefined;
+  compact?: boolean | undefined;
+  activeRouteSegmentIds?: string[] | undefined;
+  syntheticWaypoints?: [number, number][] | undefined;
+  heatmapMode?: "condition" | "hazard_density" | undefined;
 }) {
   if (typeof window === "undefined") {
     return (
@@ -109,17 +166,71 @@ export default function LeafletMap({
         attribution="© OpenStreetMap"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Fit />
+      {!activeRouteSegmentIds?.length && !syntheticWaypoints?.length && <Fit />}
+      <AutoFitRoute
+        features={features}
+        activeRouteSegmentIds={activeRouteSegmentIds}
+        syntheticWaypoints={syntheticWaypoints}
+      />
+
+      {/* Synthetic Corridor Waypoint Path (for statewide routes awaiting local fleet telemetry) */}
+      {syntheticWaypoints &&
+        syntheticWaypoints.length > 1 &&
+        (() => {
+          const startPt = syntheticWaypoints[0];
+          const endPt = syntheticWaypoints[syntheticWaypoints.length - 1];
+          if (!startPt || !endPt) return null;
+          return (
+            <>
+              <Polyline
+                positions={syntheticWaypoints}
+                pathOptions={{
+                  color: "#64748b",
+                  weight: 4.5,
+                  opacity: 0.9,
+                  dashArray: "8, 8",
+                }}
+              />
+              <CircleMarker
+                center={startPt}
+                radius={7}
+                pathOptions={{ color: "#ffffff", fillColor: "#0284c7", fillOpacity: 1, weight: 2.5 }}
+              >
+                <Popup>
+                  <b>ORIGIN</b>
+                  <br />
+                  Corridor Start Point
+                </Popup>
+              </CircleMarker>
+              <CircleMarker
+                center={endPt}
+                radius={7}
+                pathOptions={{ color: "#ffffff", fillColor: "#0284c7", fillOpacity: 1, weight: 2.5 }}
+              >
+                <Popup>
+                  <b>DESTINATION</b>
+                  <br />
+                  Corridor Terminus
+                </Popup>
+              </CircleMarker>
+            </>
+          );
+        })()}
 
       {/* Road Segment Polylines */}
       {mode !== "events" &&
         features.map((f) => {
           const s = byId.get(f.properties.segment_id);
-          const color = getSegmentColor(s);
+          const color = heatmapMode === "hazard_density" ? getHazardDensityColor(s) : getSegmentColor(s);
           const isSelected = selected === f.properties.segment_id;
+          const isInActiveRoute = activeRouteSegmentIds?.includes(f.properties.segment_id);
+          const hasActiveRoute = Boolean(activeRouteSegmentIds && activeRouteSegmentIds.length > 0);
+
           const score = s?.condition_score != null ? s.condition_score : 74.4;
           const cls = s?.condition_class || (score >= 80 ? "GOOD" : score >= 50 ? "MODERATE" : "POOR");
-          const conf = Math.round((s?.confidence ?? 0.83) * 100);
+          let rawConf = Number(s?.confidence ?? 0.83);
+          if (rawConf > 1.0) rawConf = rawConf / 100;
+          const conf = Math.round(rawConf * 100);
 
           return (
             <GeoJSON
@@ -128,8 +239,8 @@ export default function LeafletMap({
               eventHandlers={{ click: () => onSelect?.(f.properties.segment_id) }}
               style={() => ({
                 color,
-                weight: isSelected ? 8 : compact ? 4 : 5.5,
-                opacity: isSelected ? 1 : 0.88,
+                weight: isSelected ? 8.5 : isInActiveRoute ? 7 : compact ? 4 : (hasActiveRoute ? 2.5 : 5.5),
+                opacity: isSelected ? 1 : isInActiveRoute ? 0.95 : (hasActiveRoute ? 0.22 : 0.88),
               })}
             >
               <Popup>

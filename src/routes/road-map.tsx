@@ -6,10 +6,23 @@ import { PageTitle } from "@/components/roadsense/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendChart } from "@/components/roadsense/charts";
-import { ShieldCheck, AlertTriangle, HelpCircle, Activity, Info } from "lucide-react";
+import { ShieldCheck, AlertTriangle, HelpCircle, Activity, Info, Flame, Layers } from "lucide-react";
+import {
+  DEMO_ROUTES,
+  calculateRouteCondition,
+  type DemoRoute,
+} from "@/lib/traveller-routes";
+import { RouteSelector } from "@/components/roadsense/route-selector";
+import { RouteSummaryCard } from "@/components/roadsense/route-summary-card";
+import { RouteHazardSummary } from "@/components/roadsense/route-hazard-summary";
+import { RouteSegmentList } from "@/components/roadsense/route-segment-list";
+import { RouteComparisonDialog } from "@/components/roadsense/route-comparison-dialog";
 
 const MapView = lazy(() => import("@/components/roadsense/leaflet-map"));
-const schema = z.object({ segment: z.string().optional() });
+const schema = z.object({
+  segment: z.string().optional(),
+  route: z.string().optional(),
+});
 
 export const Route = createFileRoute("/road-map")({
   ssr: false,
@@ -59,12 +72,34 @@ function RoadMap() {
   const d = useRoadData();
   const search = Route.useSearch();
   const [selected, setSelected] = useState(search.segment ?? "");
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(search.route ?? null);
+  const [showCompareDialog, setShowCompareDialog] = useState(false);
+  const [heatmapMode, setHeatmapMode] = useState<"condition" | "hazard_density">("condition");
+
+  const summariesMap = useMemo(() => {
+    return new Map(d.summaries.map((s) => [s.segment_id, s]));
+  }, [d.summaries]);
+
+  const selectedRoute = useMemo(() => {
+    if (!selectedRouteId) return null;
+    return DEMO_ROUTES.find((r) => r.id === selectedRouteId) ?? null;
+  }, [selectedRouteId]);
+
+  const routeSummary = useMemo(() => {
+    if (!selectedRoute) return null;
+    return calculateRouteCondition(selectedRoute, summariesMap);
+  }, [selectedRoute, summariesMap]);
 
   useEffect(() => {
-    if (!selected && d.summaries[0]) {
+    if (selectedRoute && selectedRoute.segmentIds.length > 0) {
+      if (!selected || !selectedRoute.segmentIds.includes(selected)) {
+        const firstSeg = selectedRoute.segmentIds[0];
+        if (firstSeg) setSelected(firstSeg);
+      }
+    } else if (!selected && d.summaries[0]) {
       setSelected(d.summaries[0].segment_id);
     }
-  }, [d.summaries, selected]);
+  }, [selectedRoute, d.summaries, selected]);
 
   const [mode, setMode] = useState<"segments" | "events">("segments");
   const [minScore, setMinScore] = useState(0);
@@ -130,6 +165,43 @@ function RoadMap() {
         subtitle="Repeated multi-bus observations aggregated into corridor road-condition intelligence."
       />
 
+      {/* Corridor Route Intelligence or Route Selection */}
+      {selectedRoute && routeSummary ? (
+        <div className="space-y-4 mb-4">
+          <RouteSummaryCard
+            route={selectedRoute}
+            summary={routeSummary}
+            onClearRoute={() => setSelectedRouteId(null)}
+            onOpenCompare={() => setShowCompareDialog(true)}
+          />
+
+          {selectedRoute.status === "OBSERVED" && (
+            <RouteHazardSummary
+              hazards={routeSummary.hazards}
+              monitoredSegments={routeSummary.totalMonitoredSegments}
+              distanceKm={routeSummary.totalDistanceKm}
+              totalPasses={routeSummary.totalPasses}
+              uniqueBuses={routeSummary.uniqueBuses}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="mb-4">
+          <RouteSelector
+            routes={DEMO_ROUTES}
+            selectedRouteId={selectedRouteId}
+            onSelectRoute={(id) => {
+              setSelectedRouteId(id);
+              const r = DEMO_ROUTES.find((x) => x.id === id);
+              if (r && r.segmentIds[0]) {
+                setSelected(r.segmentIds[0]);
+              }
+            }}
+            summaries={d.summaries}
+          />
+        </div>
+      )}
+
       {/* Map Control Filters */}
       <div className="map-filters panel flex flex-wrap items-center gap-3">
         <select
@@ -167,6 +239,36 @@ function RoadMap() {
           />
         </label>
 
+        {/* Heatmap Overlay Toggle */}
+        <div className="flex items-center gap-1 rounded-lg bg-muted/70 p-1 border border-border/50 text-xs">
+          <button
+            type="button"
+            onClick={() => setHeatmapMode("condition")}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer flex items-center gap-1 ${
+              heatmapMode === "condition"
+                ? "bg-background text-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Color corridors by condition score: Good (Green), Moderate (Amber), Poor (Red)"
+          >
+            <Layers className="w-3.5 h-3.5 text-primary" />
+            <span>Condition Score</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setHeatmapMode("hazard_density")}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer flex items-center gap-1 ${
+              heatmapMode === "hazard_density"
+                ? "bg-background text-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Color corridors by catalogued hazard density (hazards per segment)"
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-500" />
+            <span>Hazard Density</span>
+          </button>
+        </div>
+
         <div className="mode-toggle ml-auto flex gap-1">
           <Button
             variant={mode === "segments" ? "default" : "ghost"}
@@ -198,27 +300,52 @@ function RoadMap() {
                 mode={mode}
                 selected={selected}
                 onSelect={setSelected}
+                activeRouteSegmentIds={selectedRoute?.segmentIds}
+                syntheticWaypoints={selectedRoute?.syntheticWaypoints}
+                heatmapMode={heatmapMode}
               />
             </Suspense>
           </ClientOnly>
 
-          {/* Condition-based Map Legend & Confidence Guidance */}
+          {/* Condition or Hazard Density Map Legend & Confidence Guidance */}
           <div className="map-legend flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs pt-2.5">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="font-bold text-foreground">Road Condition:</span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                <b>Good</b> (80–100)
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-3 h-3 rounded-full bg-amber-500" />
-                <b>Moderate</b> (50–79)
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-3 h-3 rounded-full bg-rose-500" />
-                <b>Poor</b> (&lt; 50)
-              </span>
-            </div>
+            {heatmapMode === "condition" ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="font-bold text-foreground">Road Condition:</span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <b>Good</b> (80–100)
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-amber-500" />
+                  <b>Moderate</b> (50–79)
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-rose-500" />
+                  <b>Poor</b> (&lt; 50)
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="font-bold text-foreground">Hazard Density:</span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <b>0 Hazards</b> (Clear)
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-lime-500" />
+                  <b>Low</b> (1–15)
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-amber-500" />
+                  <b>Moderate</b> (16–40)
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-rose-500" />
+                  <b>High</b> (&gt; 40)
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <Info className="w-3 h-3 text-primary shrink-0" />
@@ -362,6 +489,35 @@ function RoadMap() {
           )}
         </aside>
       </div>
+
+      {/* Corridor Segments List (when an observed route is selected) */}
+      {selectedRoute && selectedRoute.status === "OBSERVED" && (
+        <div className="mt-4">
+          <RouteSegmentList
+            segmentIds={selectedRoute.segmentIds}
+            summariesMap={summariesMap}
+            selectedSegmentId={selected}
+            onSelectSegment={(segId) => setSelected(segId)}
+          />
+        </div>
+      )}
+
+      {/* Route Comparison Modal */}
+      {showCompareDialog && (
+        <RouteComparisonDialog
+          routes={DEMO_ROUTES}
+          summariesMap={summariesMap}
+          onClose={() => setShowCompareDialog(false)}
+          onSelectRoute={(routeId) => {
+            setSelectedRouteId(routeId);
+            setShowCompareDialog(false);
+            const r = DEMO_ROUTES.find((x) => x.id === routeId);
+            if (r && r.segmentIds[0]) {
+              setSelected(r.segmentIds[0]);
+            }
+          }}
+        />
+      )}
     </>
   );
 }
