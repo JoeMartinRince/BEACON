@@ -1,4 +1,5 @@
 # Beacon — KSRTC Road-Condition Sensing & Intelligence Platform
+link--https://beacon-sigma-puce.vercel.app/
 
 Beacon crowdsources high-resolution road quality measurements using public transit fleets (such as Kerala State Road Transport Corporation — KSRTC). By analyzing GPS traces and IMU sensor data from routine bus runs, Beacon detects road hazards, filters false positives, and provides corridor health intelligence to travellers and transport planners.
 
